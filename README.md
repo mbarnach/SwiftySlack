@@ -1,10 +1,13 @@
 # SwiftySlack
 
+[![Swift 5.1](https://img.shields.io/badge/Swift-5.1-orange)](https://swift.org)
+[![Swift PM Compatible](https://img.shields.io/badge/SwiftPM-Tools:5.1-FC3324.svg?style=flat)](https://swift.org/package-manager/)
+[![](https://img.shields.io/badge/license-Apache-red.svg)](https://choosealicense.com/licenses/apache/)
 [![Build Status](https://travis-ci.com/mbarnach/SwiftySlack.svg?token=nzWydUsryjTssscwRRAQ&branch=master)](https://travis-ci.com/mbarnach/SwiftySlack)
+[![codecov](https://codecov.io/gh/mbarnach/swiftyslack/branch/master/graph/badge.svg)](https://codecov.io/gh/mbarnach/swiftyslack)
 
-`SwiftySlack` is a Swift 5.1 package that allows you to create Slack message in Swift.
-It creates the new Block type of messages for Slack, and use as much as possible
-the property wrappers to prevent invalid messages.
+`SwiftySlack` is a Swift 5.1 package that allows you to create Slack messages in Swift.
+It uses the new Block type for Slack messages, and as many property wrappers to prevent invalid messages.
 
 ## Example
 
@@ -88,3 +91,7 @@ webAPI.send(message: message). then { json in
 
 
 `SwiftySlack` has been tested on all the Slack blocks templates (see the tests).
+
+## Notes:
+
+`SwiftySlack` only support the recommanded WebAPI and the Blocks, not the deprecated Attachments.
