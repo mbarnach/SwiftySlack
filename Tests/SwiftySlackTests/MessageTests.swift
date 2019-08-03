@@ -20,6 +20,44 @@ final class MessageTests: XCTestCase {
     self.channel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
   }
   
+  func testMessageComplete() {
+    let webAPI = WebAPI(token: self.token)
+    let promise1 = webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function,
+      as: false,
+      emoji: ":chart_with_upwards_trend:",
+      link: true,
+      useMarkdown: true,
+      parse: .full,
+      unfurl_links: true,
+      unfurl_media: true))
+    
+    XCTAssert(waitForPromises(timeout: 10))
+    expect{ promise1.error }.to(beNil())
+    
+    let promise2 = webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function,
+      as: false,
+      url: URL(string: "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png")!,
+      link: false,
+      useMarkdown: false,
+      parse: .none,
+      unfurl_links: false,
+      unfurl_media: false,
+      username: "SwiftySlack bot"))
+    
+    XCTAssert(waitForPromises(timeout: 10))
+    expect{ promise2.error }.to(beNil())
+  }
+  
   func testTemplateApprovalMessage() {
     let section1 = SectionBlock(text: MarkdownText("You have a new request:\n*<fakeLink.toEmployeeProfile.com|Fred Enriquez - New device request>*"))
     
