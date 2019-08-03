@@ -4,9 +4,6 @@ env:
 
 matrix:
   include:
-    - os: linux
-      dist: bionic
-      sudo: required
     - os: osx
       osx_image: xcode11
       sudo: required
