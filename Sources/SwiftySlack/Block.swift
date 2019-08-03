@@ -48,10 +48,10 @@ public class SectionBlock: Block {
   // Despite the documentation
   // the examples show that text is not required!
   @TextLimit(3000)
-  public var text: Text = .Empty()
+  public var text: Text
   
   @CountLimits(10, 2000)
-  public var fields: [Text] = []
+  public var fields: [Text]
   
   public var accessory: Element?
   
@@ -109,13 +109,13 @@ public class DividerBlock: Block {
 public class ImageBlock: Block {
   
   @TextLimit(3000)
-  public var image_url: URL = .Empty()
+  public var image_url: URL
   
   @TextLimit(2000)
-  public var alt_text: String = .Empty()
+  public var alt_text: String
   
   @TextLimit(2000)
-  public var title: PlainText = .Empty()
+  public var title: PlainText
   
   public init(image_url: URL,
               alt_text: String,
@@ -150,7 +150,7 @@ public class ImageBlock: Block {
 public class ActionsBlock: Block {
   
   @CountLimit(5)
-  public var elements: [Element] = []
+  public var elements: [Element]
   
   public init(elements: [Element],
               block_id: String? = nil) {
@@ -293,7 +293,7 @@ public class ContextBlock: Block {
   }
   
   @CountLimit(10)
-  public var elements: [ContextElement] = []
+  public var elements: [ContextElement]
   
   public init(elements: [ContextElement],
               block_id: String? = nil) {

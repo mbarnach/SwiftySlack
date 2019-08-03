@@ -122,7 +122,7 @@ public class CountLimits<Element: Stringifiable> {
 
 @propertyWrapper
 public class RangeLimit<Element> {
-  public var value: [Element]
+  public var value: [Element] = []
   let max: Int
   let min: Int
   
@@ -131,8 +131,7 @@ public class RangeLimit<Element> {
   /// - Parameter min: The minimum number of element in the array.
   /// - Parameter max: The maximum number of elements in the array.
   /// - Note: On creation, the minimal size is not checked due to the need of having a value in creation. This is (in my opinion) a limitation of the approach.
-  public init(initialValue value: [Element], _ min: Int, _ max: Int) {
-    self.value = Array(value.prefix(max))
+  public init(_ min: Int, _ max: Int) {
     self.max = max
     self.min = min
   }

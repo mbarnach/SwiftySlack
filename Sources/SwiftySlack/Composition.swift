@@ -77,16 +77,16 @@ public class MarkdownText: Text {
 
 public class Confirmation: Encodable {
   @TextLimit(100)
-  public var title: PlainText = .Empty()
+  public var title: PlainText
   
   @TextLimit(300)
-  public var text: Text = .Empty()
+  public var text: Text
   
   @TextLimit(30)
-  public var confirm: PlainText = .Empty()
+  public var confirm: PlainText
   
   @TextLimit(30)
-  public var deny: PlainText = .Empty()
+  public var deny: PlainText
   
   public required init(title: PlainText, text: Text, confirm: PlainText, deny: PlainText) {
     self.title = title
@@ -115,13 +115,13 @@ public class Confirmation: Encodable {
 
 public class Option: Encodable {
   @TextLimit(75)
-  public var text: PlainText = .Empty()
+  public var text: PlainText
   
   @TextLimit(75)
-  public var value: String = .Empty()
+  public var value: String
   
   @TextLimit(3000)
-  public var url: URL? = URL.Empty()
+  public var url: URL?
   
   public required init(text: PlainText, value: String, url: URL? = nil) {
     self.text = text

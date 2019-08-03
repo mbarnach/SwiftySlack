@@ -60,17 +60,17 @@ public class ButtonElement: Element {
   }
   
   @TextLimit(75)
-  public var text: PlainText = .Empty()
+  public var text: PlainText
   
   // Templates are showing elements without action_id.
   @TextLimit(255)
-  public var action_id: String = .Empty()
+  public var action_id: String
   
   @TextLimit(3000)
-  public var url: URL? = nil
+  public var url: URL?
   
   @TextLimit(2000)
-  public var value: String? = nil
+  public var value: String?
   
   public var style: ButtonElementStyle? = .default
   
@@ -405,7 +405,7 @@ public class OverflowElement: Element {
   public var action_id: String
   
   @RangeLimit(2, 10)
-  public var options: [Option] = []
+  public var options: [Option]
   
   public var confirm: Confirmation?
   
@@ -441,10 +441,10 @@ public class OverflowElement: Element {
 public class DatePickerElement: Element {
   
   @TextLimit(150)
-  public var placeholder: PlainText = .Empty()
+  public var placeholder: PlainText
   
   @TextLimit(255)
-  public var action_id: String = .Empty()
+  public var action_id: String
   
   public var initial_date: Date = Date()
   
