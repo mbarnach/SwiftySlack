@@ -25,7 +25,7 @@ public struct WebAPI {
     jsonEncoder.outputFormatting = .prettyPrinted
   }
   
-  public func send(message: Message) -> Promise<SwiftyJSON.JSON> {
+  public func send(message: Message) -> Promise<Message> {
     let request = RestRequest(method: .post, url: "https://slack.com/api/chat.postMessage")
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
@@ -40,13 +40,9 @@ public struct WebAPI {
         switch response.result {
         case .success(let retval):
           do {
-            let json = try JSON(data: retval)
-            if let ack = json["ok"].bool, ack == true {
-              fulfill(json)
-            } else {
-              let error = json["error"].string ?? "Unknown error"
-              reject(SwiftySlackError.slackError(error))
-            }
+            let decoder = JSONDecoder()
+              let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
+            fulfill(receivedMessage.update(with: message))
           } catch let error {
             reject(error)
           }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// An object containing some text, formatted either as plain_text or using Slack's "mrkdwn".
-public class Text: Encodable {
+public class Text: Codable {
   public enum TextType: String, Codable {
     case plain_text
     case mrkdwn
@@ -30,6 +30,16 @@ public class Text: Encodable {
     self.type = .mrkdwn
     self.emoji = nil
     self.verbatim = nil
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    type = try values.decode(TextType.self, forKey: .type)
+    text = try values.decode(String.self, forKey: .text)
+    emoji = try values.decode(Bool.self, forKey: .emoji)
+    verbatim = try values.decode(Bool.self, forKey: .verbatim)
   }
   
   // MARK: Encoding
@@ -62,6 +72,12 @@ public class PlainText: Text {
   public required init(_ text: String) {
     super.init(text: text, type: .plain_text, emoji: nil, verbatim: nil)
   }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+  }
 }
 
 public class MarkdownText: Text {
@@ -72,10 +88,16 @@ public class MarkdownText: Text {
   public required init(_ text: String) {
     super.init(text: text, type: .mrkdwn, emoji: nil, verbatim: nil)
   }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+  }
 }
 
 
-public class Confirmation: Encodable {
+public class Confirmation: Codable {
   @TextLimit(100)
   public var title: PlainText
   
@@ -93,6 +115,16 @@ public class Confirmation: Encodable {
     self.text = text
     self.confirm = confirm
     self.deny = deny
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    title = try values.decode(PlainText.self, forKey: .title)
+    text = try values.decode(Text.self, forKey: .text)
+    confirm = try values.decode(PlainText.self, forKey: .confirm)
+    deny = try values.decode(PlainText.self, forKey: .deny)
   }
   
   // MARK: Encoding
@@ -113,7 +145,7 @@ public class Confirmation: Encodable {
   }
 }
 
-public class Option: Encodable {
+public class Option: Codable {
   @TextLimit(75)
   public var text: PlainText
   
@@ -127,6 +159,15 @@ public class Option: Encodable {
     self.text = text
     self.value = value
     self.url = url ?? .Empty()
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    text = try values.decode(PlainText.self, forKey: .text)
+    value = try values.decode(String.self, forKey: .value)
+    url = try values.decode(URL?.self, forKey: .url)
   }
   
   // MARK: Encoding
@@ -146,7 +187,7 @@ public class Option: Encodable {
   }
 }
 
-public class OptionGroup: Encodable {
+public class OptionGroup: Codable {
   @TextLimit(75)
   public var label: PlainText
   
@@ -156,6 +197,14 @@ public class OptionGroup: Encodable {
   public required init(label: PlainText, options: [Option]) {
     self.label = label
     self.options = options
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    label = try values.decode(PlainText.self, forKey: .label)
+    options = try values.decode([Option].self, forKey: .options)
   }
   
   // MARK: Encoding

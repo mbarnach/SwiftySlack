@@ -7,15 +7,20 @@
 
 import Foundation
 
-public class Element: Encodable {
+public class Element: Codable {
   let type: ElementType
   
   public init(type: ElementType) {
     self.type = type
   }
+  
+  public required init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    type = try values.decode(ElementType.self, forKey: .type)
+  }
 }
 
-public enum ElementType: String, Encodable {
+public enum ElementType: String, Codable {
   case image
   case button
   case static_select
@@ -37,6 +42,16 @@ public class ImageElement: Element {
     super.init(type: .image)
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    image_url = try values.decode(URL.self, forKey: .image_url)
+    alt_text = try values.decode(String.self, forKey: .alt_text)
+    
+    try super.init(from: decoder)
+  }
+  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -53,7 +68,7 @@ public class ImageElement: Element {
 }
 
 public class ButtonElement: Element {
-  public enum ButtonElementStyle: String, Encodable {
+  public enum ButtonElementStyle: String, Codable {
     case `default`
     case danger
     case primary
@@ -89,6 +104,20 @@ public class ButtonElement: Element {
     self.value = value
     self.style = style
     self.confirm = confirm
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    text = try values.decode(PlainText.self, forKey: .text)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    url = try values.decode(URL?.self, forKey: .url)
+    value = try values.decode(String?.self, forKey: .value)
+    style = try values.decode(ButtonElementStyle?.self, forKey: .style)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
   }
   
   // MARK: Encoding
@@ -178,6 +207,19 @@ public class StaticSelect: Element, Select {
     self.options = []
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    placeholder = try values.decode(PlainText.self, forKey: .placeholder)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    options = try values.decode([Option].self, forKey: .options)
+    option_groups = try values.decode([OptionGroup].self, forKey: .option_groups)
+  }
+  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -232,6 +274,19 @@ public class ExternalSelect: Element, Select {
     self.confirm = confirm
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    placeholder = try values.decode(PlainText.self, forKey: .placeholder)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    initial_option = try values.decode(Option?.self, forKey: .initial_option)
+    min_query_length = try values.decode(Int?.self, forKey: .min_query_length)
+  }
+  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -282,6 +337,18 @@ public class UsersSelect: Element&Select {
     self.confirm = confirm
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    placeholder = try values.decode(PlainText.self, forKey: .placeholder)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    initial_user = try values.decode(String?.self, forKey: .initial_user)
+  }
+  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -330,6 +397,18 @@ public class ConversationSelect: Element, Select {
     self.confirm = confirm
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    placeholder = try values.decode(PlainText.self, forKey: .placeholder)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    initial_conversation = try values.decode(String?.self, forKey: .initial_conversation)
+  }
+  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -376,6 +455,18 @@ public class ChannelSelect: Element, Select {
     self.confirm = confirm
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    placeholder = try values.decode(PlainText.self, forKey: .placeholder)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    initial_channel = try values.decode(String?.self, forKey: .initial_channel)
+  }
+  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -416,6 +507,17 @@ public class OverflowElement: Element {
     self.action_id = action_id
     self.options = options
     self.confirm = confirm
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    options = try values.decode([Option].self, forKey: .options)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
   }
   
   
@@ -459,6 +561,18 @@ public class DatePickerElement: Element {
     self.action_id = action_id
     self.initial_date = initial_date
     self.confirm = confirm
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    placeholder = try values.decode(PlainText.self, forKey: .placeholder)
+    action_id = try values.decode(String.self, forKey: .action_id)
+    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    initial_date = try values.decode(Date.self, forKey: .initial_date)
   }
   
   // MARK: Encoding

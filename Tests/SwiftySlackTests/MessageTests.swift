@@ -58,6 +58,45 @@ final class MessageTests: XCTestCase {
     expect{ promise2.error }.to(beNil())
   }
   
+  func testMessageReply() {
+    let webAPI = WebAPI(token: self.token)
+    
+    let answer = webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function)).then { parent in
+        all([
+        webAPI.send(message: Message(
+          blocks: [
+            SectionBlock(text: MarkdownText("*Custom* reply 1"))
+          ],
+          to: self.channel,
+          alternateText: #function+" reply 1",
+          reply: parent.thread_ts)),
+        webAPI.send(message: Message(
+        blocks: [
+          SectionBlock(text: MarkdownText("*Custom* reply 2"))
+        ],
+        to: self.channel,
+        alternateText: #function+" reply 2",
+        reply: parent.thread_ts)),
+        webAPI.send(message: Message(
+        blocks: [
+          SectionBlock(text: MarkdownText("*Custom* reply 3"))
+        ],
+        to: self.channel,
+        alternateText: #function+" reply 3",
+        reply: parent.thread_ts))
+          ])
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+    expect{ answer.error }.to(beNil())
+    
+  }
+  
   func testTemplateApprovalMessage() {
     let section1 = SectionBlock(text: MarkdownText("You have a new request:\n*<fakeLink.toEmployeeProfile.com|Fred Enriquez - New device request>*"))
     
@@ -1333,6 +1372,8 @@ final class MessageTests: XCTestCase {
 
   
   static var allTests = [
+    ("testMessageComplete", testMessageComplete),
+    ("testMessageReply", testMessageReply),
     ("testTemplateApprovalMessage", testTemplateApprovalMessage),
     ("testTemplateApprovalAdvancedMessage", testTemplateApprovalAdvancedMessage),
     ("testTemplateNotificationMessage", testTemplateNotificationMessage),

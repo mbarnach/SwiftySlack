@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum BlockType: String, Encodable {
+public enum BlockType: String, Codable {
   case section
   case divider
   case image
@@ -16,7 +16,7 @@ public enum BlockType: String, Encodable {
   case file
 }
 
-public class Block: Encodable {
+public class Block: Codable {
   public let type: BlockType
   
   @TextLimit(255)
@@ -28,7 +28,16 @@ public class Block: Encodable {
     self.block_id = block_id ?? .Empty()
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+      let values = try decoder.container(keyedBy: CodingKeys.self)
+      type = try values.decode(BlockType.self, forKey: .type)
+      block_id = try values.decode(String.self, forKey: .block_id)
+  }
+  
   // MARK: Encoding
+  
   enum CodingKeys: String, CodingKey {
     case type
     case block_id
@@ -76,6 +85,17 @@ public class SectionBlock: Block {
     self.accessory = accessory
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: SectionCodingKeys.self)
+    text = try values.decode(Text.self, forKey: .text)
+    fields = try values.decode([Text].self, forKey: .fields)
+    accessory = try values.decode(Element.self, forKey: .accessory)
+  }
+  
   // MARK: Encoding
   
   enum SectionCodingKeys: String, CodingKey {
@@ -104,6 +124,11 @@ public class DividerBlock: Block {
   public init(block_id: String? = nil) {
     super.init(type: .divider, block_id: block_id)
   }
+  
+  // MARK: Decoding
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+  }
 }
 
 public class ImageBlock: Block {
@@ -126,6 +151,17 @@ public class ImageBlock: Block {
     self.image_url = image_url
     self.alt_text = alt_text
     self.title = title ?? .Empty()
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: ImageCodingKeys.self)
+    image_url = try values.decode(URL.self, forKey: .image_url)
+    alt_text = try values.decode(String.self, forKey: .alt_text)
+    title = try values.decode(PlainText.self, forKey: .title)
   }
   
   // MARK: Encoding
@@ -159,6 +195,15 @@ public class ActionsBlock: Block {
     self.elements = elements
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: ActionsCodingKeys.self)
+    elements = try values.decode([Element].self, forKey: .elements)
+  }
+  
   // MARK: Encoding
   enum ActionsCodingKeys: String, CodingKey {
     case elements
@@ -184,7 +229,7 @@ fileprivate extension Text.TextType {
 
 public class ContextBlock: Block {
   
-  enum ContextElementType: String, Encodable {
+  enum ContextElementType: String, Codable {
     case image
     case plain_text
     case mrkdwn
@@ -200,7 +245,8 @@ public class ContextBlock: Block {
       }
     }
   }
-  public class ContextElement: Encodable {
+  
+  public class ContextElement: Codable {
     // Common part
     let type: ContextElementType
     let alt_text: String
@@ -260,6 +306,17 @@ public class ContextBlock: Block {
       }
     }
     
+    // MARK: Decoding
+    
+    required public init(from decoder: Decoder) throws {
+      let values = try decoder.container(keyedBy: ContextElementCodingKeys.self)
+      type = try values.decode(ContextElementType.self, forKey: .type)
+      alt_text = try values.decode(String.self, forKey: .alt_text)
+      image_url = try values.decode(URL.self, forKey: .image_url)
+      emoji = try values.decode(Bool.self, forKey: .emoji)
+      verbatim = try values.decode(Bool.self, forKey: .verbatim)
+    }
+    
     // MARK: Encoding
     
     enum ContextElementCodingKeys: String, CodingKey {
@@ -302,6 +359,15 @@ public class ContextBlock: Block {
     self.elements = elements
   }
   
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    try super.init(from: decoder)
+    
+    let values = try decoder.container(keyedBy: ContextCodingKeys.self)
+    elements = try values.decode([ContextElement].self, forKey: .elements)
+  }
+  
   // MARK: Encoding
   
   enum ContextCodingKeys: String, CodingKey {
@@ -316,7 +382,7 @@ public class ContextBlock: Block {
 }
 
 public class FileBlock: Block {
-  public enum FileSource: String, Encodable {
+  public enum FileSource: String, Codable {
     case remote
   }
   
@@ -329,6 +395,15 @@ public class FileBlock: Block {
     self.external_id = external_id
     
     super.init(type: .file, block_id: block_id)
+  }
+  
+  // MARK: Decoding
+  
+  required public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: FileCodingKeys.self)
+    external_id = try values.decode(String.self, forKey: .external_id)
+    
+    try super.init(from: decoder)
   }
   
   // MARK: Encoding
