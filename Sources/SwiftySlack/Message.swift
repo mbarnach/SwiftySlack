@@ -62,16 +62,12 @@ public class Message: Codable {
     self.text = text ?? .Empty()
     
     self.as_user = as_user
-    if let as_user = as_user, as_user == true {
-      // It will be ignored anyway.
-    } else {
-      self.icon_emoji = icon_emoji
-    }
-    if let as_user = as_user, as_user == true {
-      // It will be ignored anyway.
-    } else {
+    if as_user == nil || as_user == false {
+      self.username = username
       if icon_emoji == nil {
         self.icon_url = icon_url
+      } else {
+        self.icon_emoji = icon_emoji
       }
     }
     self.link_names = link_names
@@ -81,12 +77,6 @@ public class Message: Codable {
     self.thread_ts = thread_ts
     self.unfurl_links = unfurl_links
     self.unfurl_media = unfurl_media
-    
-    if let as_user = as_user, as_user == true {
-      // It will be ignored anyway.
-    } else {
-      self.username = username
-    }
   }
   
   // MARK: Decoding
@@ -94,8 +84,7 @@ public class Message: Codable {
   required public init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     blocks = try values.decode([Block].self, forKey: .blocks)
-//    channel = try values.decode(String.self, forKey: .channel)
-    channel = ""
+    channel = (try? values.decode(String.self, forKey: .channel)) ?? ""
     text = try values.decode(String.self, forKey: .text)
     as_user = try? values.decode(Bool?.self, forKey: .as_user)
     icon_emoji = try? values.decode(String?.self, forKey: .icon_emoji)

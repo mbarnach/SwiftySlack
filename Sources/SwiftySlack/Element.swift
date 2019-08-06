@@ -114,10 +114,10 @@ public class ButtonElement: Element {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     text = try values.decode(PlainText.self, forKey: .text)
     action_id = try values.decode(String.self, forKey: .action_id)
-    url = try values.decode(URL?.self, forKey: .url)
-    value = try values.decode(String?.self, forKey: .value)
-    style = try values.decode(ButtonElementStyle?.self, forKey: .style)
-    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    url = try? values.decode(URL?.self, forKey: .url)
+    value = try? values.decode(String?.self, forKey: .value)
+    style = try? values.decode(ButtonElementStyle?.self, forKey: .style)
+    confirm = try? values.decode(Confirmation?.self, forKey: .confirm)
   }
   
   // MARK: Encoding
@@ -215,7 +215,7 @@ public class StaticSelect: Element, Select {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     placeholder = try values.decode(PlainText.self, forKey: .placeholder)
     action_id = try values.decode(String.self, forKey: .action_id)
-    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    confirm = try? values.decode(Confirmation?.self, forKey: .confirm)
     options = try values.decode([Option].self, forKey: .options)
     option_groups = try values.decode([OptionGroup].self, forKey: .option_groups)
   }
@@ -345,8 +345,8 @@ public class UsersSelect: Element&Select {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     placeholder = try values.decode(PlainText.self, forKey: .placeholder)
     action_id = try values.decode(String.self, forKey: .action_id)
-    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
-    initial_user = try values.decode(String?.self, forKey: .initial_user)
+    confirm = try? values.decode(Confirmation?.self, forKey: .confirm)
+    initial_user = try? values.decode(String?.self, forKey: .initial_user)
   }
   
   // MARK: Encoding
@@ -405,8 +405,8 @@ public class ConversationSelect: Element, Select {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     placeholder = try values.decode(PlainText.self, forKey: .placeholder)
     action_id = try values.decode(String.self, forKey: .action_id)
-    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
-    initial_conversation = try values.decode(String?.self, forKey: .initial_conversation)
+    confirm = try? values.decode(Confirmation?.self, forKey: .confirm)
+    initial_conversation = try? values.decode(String?.self, forKey: .initial_conversation)
   }
   
   // MARK: Encoding
@@ -517,7 +517,7 @@ public class OverflowElement: Element {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     action_id = try values.decode(String.self, forKey: .action_id)
     options = try values.decode([Option].self, forKey: .options)
-    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    confirm = try? values.decode(Confirmation?.self, forKey: .confirm)
   }
   
   
@@ -571,7 +571,7 @@ public class DatePickerElement: Element {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     placeholder = try values.decode(PlainText.self, forKey: .placeholder)
     action_id = try values.decode(String.self, forKey: .action_id)
-    confirm = try values.decode(Confirmation?.self, forKey: .confirm)
+    confirm = try? values.decode(Confirmation?.self, forKey: .confirm)
     initial_date = try values.decode(Date.self, forKey: .initial_date)
   }
   

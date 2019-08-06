@@ -31,36 +31,14 @@ public class Text: Codable {
     self.emoji = nil
     self.verbatim = nil
   }
-  
-  // MARK: Decoding
-  
-  required public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
-    type = try values.decode(TextType.self, forKey: .type)
-    text = try values.decode(String.self, forKey: .text)
-    emoji = try values.decode(Bool.self, forKey: .emoji)
-    verbatim = try values.decode(Bool.self, forKey: .verbatim)
-  }
-  
-  // MARK: Encoding
-  
-  enum CodingKeys: String, CodingKey {
-    case type
-    case text
-    case emoji
-    case verbatim
-  }
-  
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(type, forKey: .type)
-    try container.encode(text, forKey: .text)
-    if let emoji = emoji {
-      try container.encode(emoji, forKey: .emoji)
-    }
-    if let verbatim = verbatim {
-      try container.encode(verbatim, forKey: .verbatim)
-    }
+}
+
+extension Text: Equatable {
+  public static func ==(lhs: Text, rhs: Text) -> Bool {
+    return lhs.type == rhs.type &&
+      lhs.text == rhs.text &&
+      lhs.emoji == rhs.emoji &&
+      lhs.verbatim == rhs.verbatim
   }
 }
 
@@ -158,7 +136,7 @@ public class Option: Codable {
   public required init(text: PlainText, value: String, url: URL? = nil) {
     self.text = text
     self.value = value
-    self.url = url ?? .Empty()
+    self.url = url
   }
   
   // MARK: Decoding
@@ -167,7 +145,7 @@ public class Option: Codable {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     text = try values.decode(PlainText.self, forKey: .text)
     value = try values.decode(String.self, forKey: .value)
-    url = try values.decode(URL?.self, forKey: .url)
+    url = try? values.decode(URL?.self, forKey: .url)
   }
   
   // MARK: Encoding
@@ -181,9 +159,17 @@ public class Option: Codable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(text, forKey: .text)
     try container.encode(value, forKey: .value)
-    if url != .Empty() {
+    if let url = url {
       try container.encode(url, forKey: .url)
     }
+  }
+}
+
+extension Option: Equatable {
+  public static func ==(lhs: Option, rhs: Option) -> Bool {
+    return lhs.text == rhs.text &&
+      lhs.value == rhs.value &&
+      lhs.url == rhs.url
   }
 }
 

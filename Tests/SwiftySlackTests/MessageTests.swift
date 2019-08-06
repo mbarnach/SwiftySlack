@@ -68,28 +68,29 @@ final class MessageTests: XCTestCase {
       to: channel,
       alternateText: #function)).then { parent in
         all([
-        webAPI.send(message: Message(
-          blocks: [
-            SectionBlock(text: MarkdownText("*Custom* reply 1"))
-          ],
-          to: self.channel,
-          alternateText: #function+" reply 1",
-          reply: parent.thread_ts)),
-        webAPI.send(message: Message(
-        blocks: [
-          SectionBlock(text: MarkdownText("*Custom* reply 2"))
-        ],
-        to: self.channel,
-        alternateText: #function+" reply 2",
-        reply: parent.thread_ts)),
-        webAPI.send(message: Message(
-        blocks: [
-          SectionBlock(text: MarkdownText("*Custom* reply 3"))
-        ],
-        to: self.channel,
-        alternateText: #function+" reply 3",
-        reply: parent.thread_ts))
-          ])
+          webAPI.send(message: Message(
+            blocks: [
+              SectionBlock(text: MarkdownText("*Custom* reply 1"))
+            ],
+            to: self.channel,
+            alternateText: #function+" reply 1",
+            reply: parent.thread_ts)),
+          webAPI.send(message: Message(
+            blocks: [
+              SectionBlock(text: MarkdownText("*Custom* reply 2"))
+            ],
+            to: self.channel,
+            alternateText: #function+" reply 2",
+            reply: parent.thread_ts)),
+          webAPI.send(message: Message(
+            blocks: [
+              SectionBlock(text: MarkdownText("*Custom* reply 3"))
+            ],
+            to: self.channel,
+            alternateText: #function+" reply 3",
+            reply_broadcast: true,
+            reply: parent.thread_ts))
+        ])
     }
     
     XCTAssert(waitForPromises(timeout: 10))
