@@ -33,15 +33,6 @@ public class Text: Encodable {
   }
 }
 
-extension Text: Equatable {
-  public static func ==(lhs: Text, rhs: Text) -> Bool {
-    return lhs.type == rhs.type &&
-      lhs.text == rhs.text &&
-      lhs.emoji == rhs.emoji &&
-      lhs.verbatim == rhs.verbatim
-  }
-}
-
 public class PlainText: Text {
   public init(text: String, emoji: Bool? = nil, verbatim: Bool? = nil) {
     super.init(text: text, type: .plain_text, emoji: emoji, verbatim: verbatim)
@@ -131,14 +122,6 @@ public class Option: Encodable {
     if let url = url {
       try container.encode(url, forKey: .url)
     }
-  }
-}
-
-extension Option: Equatable {
-  public static func ==(lhs: Option, rhs: Option) -> Bool {
-    return lhs.text == rhs.text &&
-      lhs.value == rhs.value &&
-      lhs.url == rhs.url
   }
 }
 

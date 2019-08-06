@@ -178,12 +178,3 @@ internal class ReceivedMessage: Decodable {
     channel = try values.decode(String.self, forKey: .channel)
   }
 }
-
-// Assign the right value to a left value optional if right is not nil.
-// Otherwise keep the right value.
-infix operator <-
-internal func <- <T>(lhs: inout T?, rhs: T?) {
-  if rhs != nil {
-    lhs = rhs
-  }
-}

@@ -189,17 +189,6 @@ public class ContextBlock: Block {
     case image
     case plain_text
     case mrkdwn
-    
-    var toText: Text.TextType? {
-      switch self {
-      case .plain_text:
-        return .plain_text
-      case .mrkdwn:
-        return .mrkdwn
-      case .image:
-        return nil
-      }
-    }
   }
   
   public class ContextElement: Encodable {
@@ -232,34 +221,6 @@ public class ContextBlock: Block {
       // Text part
       self.emoji = nil
       self.verbatim = nil
-    }
-    
-    public var text: Text? {
-      switch self.type {
-      case .mrkdwn, .plain_text:
-        guard let emoji = self.emoji,
-          let verbatim = self.verbatim,
-          let type = self.type.toText
-          else { return nil }
-        return Text(text: alt_text,
-                    type: type,
-                    emoji: emoji,
-                    verbatim: verbatim)
-      case .image:
-        return nil
-      }
-    }
-    
-    public var image: ImageElement? {
-      switch self.type {
-      case .mrkdwn, .plain_text:
-        return nil
-      case .image:
-        guard let image_url = self.image_url
-          else { return nil }
-        return ImageElement(image_url: image_url,
-                            alt_text: alt_text)
-      }
     }
     
     // MARK: Encoding
