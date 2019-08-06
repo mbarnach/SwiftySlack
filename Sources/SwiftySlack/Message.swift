@@ -7,14 +7,14 @@
 
 import Foundation
 
-public class Message: Codable {
+public class Message: Encodable {
   public var blocks: [Block]
   
   // Either the message of the fallback.
   public var text: String
   
   // MARK: Metadata
-  public enum Parse: String, Codable {
+  public enum Parse: String, Encodable {
     case full
     case nones
   }
@@ -79,27 +79,6 @@ public class Message: Codable {
     self.unfurl_media = unfurl_media
   }
   
-  // MARK: Decoding
-  
-  required public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
-    blocks = try values.decode([Block].self, forKey: .blocks)
-    channel = (try? values.decode(String.self, forKey: .channel)) ?? ""
-    text = try values.decode(String.self, forKey: .text)
-    as_user = try? values.decode(Bool?.self, forKey: .as_user)
-    icon_emoji = try? values.decode(String?.self, forKey: .icon_emoji)
-    icon_url = try? values.decode(URL?.self, forKey: .icon_url)
-    link_names = try? values.decode(Bool?.self, forKey: .link_names)
-    mrkdwn = try? values.decode(Bool?.self, forKey: .mrkdwn)
-    parse = try? values.decode(Parse?.self, forKey: .parse)
-    reply_broadcast = try? values.decode(Bool?.self, forKey: .reply_broadcast)
-    thread_ts = try? values.decode(String?.self, forKey: .thread_ts)
-    unfurl_links = try? values.decode(Bool?.self, forKey: .unfurl_links)
-    unfurl_media = try? values.decode(Bool?.self, forKey: .unfurl_media)
-    username = try values.decode(String?.self, forKey: .username)
-  }
-  
-  
   // MARK: Encoding
   
   enum CodingKeys: String, CodingKey {
@@ -163,33 +142,40 @@ public class Message: Codable {
 }
 
 internal class ReceivedMessage: Decodable {
-  internal struct MetadataResponse: Codable {
-      internal var warnings: [String]
+  internal struct MetadataResponse: Decodable {
+      internal var warnings: [String] = []
   }
   internal var ok: Bool
-  internal var warning: String
-  internal var response_metadata: MetadataResponse
+  internal var warning: String?
+  internal var response_metadata: MetadataResponse?
   internal var ts: String
   internal var channel: String
   
-  internal var message: Message
+  internal var message: Message?
   
   internal func update(with message: Message) -> Message {
-    message.blocks = self.message.blocks
-    message.text = self.message.text
     message.channel = channel
-    message.as_user <- self.message.as_user
-    message.icon_emoji <- self.message.icon_emoji
-    message.icon_url <- self.message.icon_url
-    message.link_names <- self.message.link_names
-    message.mrkdwn <- self.message.mrkdwn
-    message.parse <- self.message.parse
-    message.reply_broadcast <- self.message.reply_broadcast
     message.thread_ts = ts
-    message.unfurl_links <- self.message.unfurl_links
-    message.unfurl_media <- self.message.unfurl_media
-    message.username <- self.message.username
     return message
+  }
+  
+  // MARK: Decoding
+  
+  enum CodingKeys: String, CodingKey {
+    case ok
+    case warning
+    case response_metadata
+    case ts
+    case channel
+  }
+  
+  required init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    ok = try values.decode(Bool.self, forKey: .ok)
+    warning = try? values.decode(String?.self, forKey: .warning)
+    response_metadata = try? values.decode(MetadataResponse.self, forKey: .response_metadata)
+    ts = try values.decode(String.self, forKey: .ts)
+    channel = try values.decode(String.self, forKey: .channel)
   }
 }
 
