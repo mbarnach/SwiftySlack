@@ -140,7 +140,12 @@ final class ElementTests: XCTestCase {
         Option(text: PlainText("*this is plain_text text*"), value: "value-0"),
         Option(text: PlainText("*this is plain_text text*"), value: "value-1"),
         Option(text: PlainText("*this is plain_text text*"), value: "value-2")
-      ]
+      ],
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!"))
     )
     let expectedJSON = JSON(parseJSON: """
       {
@@ -172,7 +177,126 @@ final class ElementTests: XCTestCase {
             },
             "value": "value-2"
           }
-        ]
+        ],
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
+        }
+      }
+      """)
+    expect{ jsonEncode(object: select) } == expectedJSON
+  }
+  
+  func testStaticSelectOptionGroups() {
+    let select = StaticSelect(
+      placeholder: PlainText("Select an item"),
+      action_id: "text1234",
+      option_groups: [
+        OptionGroup(label: PlainText("Group 1"),
+                    options: [
+                      Option(text: PlainText("Choice 1"), value: "value-0"),
+                      Option(text: PlainText("Choice 2"), value: "value-1"),
+                      Option(text: PlainText("Choice 3"), value: "value-2")
+          ]
+                    ),
+        OptionGroup(label: PlainText("Group 2"),
+                    options: [
+          Option(text: PlainText("Choice 4"), value: "value-3")
+          ]
+                    )
+      ],
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!"))
+    )
+    let expectedJSON = JSON(parseJSON: """
+      {
+        "action_id": "text1234",
+        "type": "static_select",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select an item"
+        },
+        "option_groups": [
+          {
+            "label": {
+              "type": "plain_text",
+              "text": "Group 1"
+            },
+            "options": [
+              {
+                "text": {
+                    "type": "plain_text",
+                    "text": "Choice 1"
+                },
+                "value": "value-0"
+              },
+              {
+                "text": {
+                    "type": "plain_text",
+                    "text": "Choice 2"
+                },
+                "value": "value-1"
+              },
+              {
+                "text": {
+                    "type": "plain_text",
+                    "text": "Choice 3"
+                },
+                "value": "value-2"
+              }
+            ]
+          },
+          {
+            "label": {
+                "type": "plain_text",
+                "text": "Group 2"
+            },
+            "options": [
+              {
+                "text": {
+                    "type": "plain_text",
+                    "text": "Choice 4"
+                },
+                "value": "value-3"
+              }
+            ]
+          }
+        ],
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
+        }
       }
       """)
     expect{ jsonEncode(object: select) } == expectedJSON
@@ -330,6 +454,7 @@ final class ElementTests: XCTestCase {
     ("testButtonLink", testButtonLink),
     ("testButtonConfirm", testButtonConfirm),
     ("testStaticSelect", testStaticSelect),
+    ("testStaticSelectOptionGroups", testStaticSelectOptionGroups),
     ("testExternalSelect", testExternalSelect),
     ("testUserSelect", testUserSelect),
     ("testConversationSelect", testConversationSelect),

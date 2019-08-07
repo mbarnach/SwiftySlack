@@ -195,10 +195,10 @@ public class StaticSelect: Element, Select {
     if let confirm = confirm {
       try container.encode(confirm, forKey: .confirm)
     }
+    // Options or Option groups, not both.
     if false == options.isEmpty {
       try container.encode(options, forKey: .options)
-    }
-    if false == option_groups.isEmpty {
+    } else if false == option_groups.isEmpty {
       try container.encode(option_groups, forKey: .option_groups)
     }
     try super.encode(to: encoder)
