@@ -306,7 +306,13 @@ final class ElementTests: XCTestCase {
     let select = ExternalSelect(
       placeholder: PlainText("Select an item"),
       action_id: "text1234",
-      min_query_length: 3)
+      initial_option: Option(text: PlainText("Option 1"), value: "click_me_123"),
+      min_query_length: 3,
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!")))
     let expectedJSON = JSON(parseJSON: """
       {
         "action_id": "text1234",
@@ -315,7 +321,32 @@ final class ElementTests: XCTestCase {
           "type": "plain_text",
           "text": "Select an item"
         },
-        "min_query_length": 3
+        "initial_option": {
+          "text": {
+            "type": "plain_text",
+            "text": "Option 1"
+          },
+          "value": "click_me_123"
+        },
+        "min_query_length": 3,
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
+        }
       }
       """)
     expect{ jsonEncode(object: select) } == expectedJSON
@@ -324,7 +355,13 @@ final class ElementTests: XCTestCase {
   func testUserSelect() {
     let select = UsersSelect(
       placeholder: PlainText("Select an item"),
-      action_id: "text1234")
+      action_id: "text1234",
+      initial_user: "me",
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!")))
     let expectedJSON = JSON(parseJSON: """
       {
         "action_id": "text1234",
@@ -332,6 +369,25 @@ final class ElementTests: XCTestCase {
         "placeholder": {
           "type": "plain_text",
           "text": "Select an item"
+        },
+        "initial_user": "me",
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
         }
       }
       """)
@@ -341,7 +397,13 @@ final class ElementTests: XCTestCase {
   func testConversationSelect() {
     let select = ConversationSelect(
       placeholder: PlainText("Select an item"),
-      action_id: "text1234")
+      action_id: "text1234",
+      initial_conversation: "discussion",
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!")))
     let expectedJSON = JSON(parseJSON: """
       {
         "action_id": "text1234",
@@ -349,6 +411,25 @@ final class ElementTests: XCTestCase {
         "placeholder": {
           "type": "plain_text",
           "text": "Select an item"
+        },
+        "initial_conversation": "discussion",
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
         }
       }
       """)
@@ -356,9 +437,16 @@ final class ElementTests: XCTestCase {
   }
   
   func testChannelSelect() {
+    let testChannel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
     let select = ChannelSelect(
       placeholder: PlainText("Select an item"),
-      action_id: "text1234")
+      action_id: "text1234",
+      initial_channel: "\(testChannel)",
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!")))
     let expectedJSON = JSON(parseJSON: """
       {
         "action_id": "text1234",
@@ -366,6 +454,25 @@ final class ElementTests: XCTestCase {
         "placeholder": {
           "type": "plain_text",
           "text": "Select an item"
+        },
+        "initial_channel": "\(testChannel)",
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
         }
       }
       """)
@@ -381,7 +488,13 @@ final class ElementTests: XCTestCase {
         Option(text: PlainText("*this is plain_text text*"), value: "value-2"),
         Option(text: PlainText("*this is plain_text text*"), value: "value-3"),
         Option(text: PlainText("*this is plain_text text*"), value: "value-4")
-    ])
+      ],
+      confirm: Confirmation(
+        title: PlainText("Are you sure?"),
+        text: Text("Wouldn't you prefer a good game of _chess_?"),
+        confirm: PlainText("Do it"),
+        deny: PlainText("Stop, I've changed my mind!"))
+    )
     let expectedJSON = JSON(parseJSON: """
       {
         "type": "overflow",
@@ -422,7 +535,25 @@ final class ElementTests: XCTestCase {
             "value": "value-4"
           }
         ],
-        "action_id": "overflow"
+        "action_id": "overflow",
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
+        }
       }
       """)
     expect{ jsonEncode(object: overflow) } == expectedJSON
@@ -432,7 +563,12 @@ final class ElementTests: XCTestCase {
     let date = DatePickerElement(
         placeholder: PlainText("Select a date"),
         action_id: "datepicker123",
-        initial_date: DatePickerElement.date(from: "1990-04-28")!)
+        initial_date: DatePickerElement.date(from: "1990-04-28")!,
+        confirm: Confirmation(
+          title: PlainText("Are you sure?"),
+          text: Text("Wouldn't you prefer a good game of _chess_?"),
+          confirm: PlainText("Do it"),
+          deny: PlainText("Stop, I've changed my mind!")))
     let expectedJSON = JSON(parseJSON: """
       {
         "type": "datepicker",
@@ -441,6 +577,24 @@ final class ElementTests: XCTestCase {
         "placeholder": {
           "type": "plain_text",
           "text": "Select a date"
+        },
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Are you sure?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Wouldn't you prefer a good game of _chess_?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Stop, I've changed my mind!"
+          }
         }
       }
       """)
