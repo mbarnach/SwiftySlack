@@ -269,16 +269,23 @@ final class SectionBlockTests: XCTestCase {
   
   func testOverflow() {
     let section = SectionBlock(
-      text: MarkdownText("This is a section block with an overflow menu."),
+      text: MarkdownText("Dependencies of SwiftySlack:"),
       block_id: "section 890",
       accessory: OverflowElement(
         action_id: "overflow",
         options: [
-          Option(text: PlainText("*this is plain_text text*"), value: "value-0"),
-          Option(text: PlainText("*this is plain_text text*"), value: "value-1"),
-          Option(text: PlainText("*this is plain_text text*"), value: "value-2"),
-          Option(text: PlainText("*this is plain_text text*"), value: "value-3"),
-          Option(text: PlainText("*this is plain_text text*"), value: "value-4")
+          Option(text: PlainText("SwiftyRequest"),
+                 value: "swiftyrequest",
+                 url: URL(string: "https://github.com/IBM-Swift/SwiftyRequest")!),
+          Option(text: PlainText("SwiftyJSON"),
+                 value: "swiftyjson",
+                 url: URL(string: "https://github.com/SwiftyJSON/SwiftyJSON")!),
+          Option(text: PlainText("Promises"),
+                 value: "promises",
+                 url: URL(string: "https://github.com/google/promises")!),
+          Option(text: PlainText("Nimble"),
+                 value: "nimble",
+                 url: URL(string: "https://github.com/Quick/Nimble")!)
         ]
       )
     )
@@ -288,7 +295,7 @@ final class SectionBlockTests: XCTestCase {
         "block_id": "section 890",
         "text": {
           "type": "mrkdwn",
-          "text": "This is a section block with an overflow menu."
+          "text": "Dependencies of SwiftySlack:"
         },
         "accessory": {
           "type": "overflow",
@@ -296,37 +303,34 @@ final class SectionBlockTests: XCTestCase {
             {
               "text": {
                 "type": "plain_text",
-                "text": "*this is plain_text text*"
+                "text": "SwiftyRequest"
               },
-              "value": "value-0"
+              "value": "swiftyrequest",
+              "url": "https://github.com/IBM-Swift/SwiftyRequest"
             },
             {
               "text": {
                 "type": "plain_text",
-                "text": "*this is plain_text text*"
+                "text": "SwiftyJSON"
               },
-              "value": "value-1"
+              "value": "swiftyjson",
+              "url": "https://github.com/SwiftyJSON/SwiftyJSON"
             },
             {
               "text": {
                 "type": "plain_text",
-                "text": "*this is plain_text text*"
+                "text": "Promises"
               },
-              "value": "value-2"
+              "value": "promises",
+              "url": "https://github.com/google/promises"
             },
             {
               "text": {
                 "type": "plain_text",
-                "text": "*this is plain_text text*"
+                "text": "Nimble"
               },
-              "value": "value-3"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "*this is plain_text text*"
-              },
-              "value": "value-4"
+              "value": "nimble",
+              "url": "https://github.com/Quick/Nimble"
             }
           ],
           "action_id": "overflow"
@@ -619,6 +623,40 @@ final class ContextBlockTests: XCTestCase {
           {
             "type": "mrkdwn",
             "text": "Location: **Dogpatch**"
+          },
+        ]
+      }
+      """)
+    expect{ jsonEncode(object: context) } == expectedJSON
+  }
+  
+  func testComplete() {
+    let context = ContextBlock(elements: [
+      ContextBlock.ContextElement(text: MarkdownText(text: "*Author:* T. M. Schwartz", verbatim: true)),
+      ContextBlock.ContextElement(text: PlainText(text: "*Author:* T. M. Schwartz", emoji: true)),
+      ContextBlock.ContextElement(image: ImageElement(
+      image_url: URL(string: "https://api.slack.com/img/blocks/bkb_template_images/goldengate.png")!,
+      alt_text: "Example Image")),
+      ]
+    )
+    let expectedJSON = JSON(parseJSON: """
+      {
+        "type": "context",
+        "elements": [
+          {
+            "type": "mrkdwn",
+            "text": "*Author:* T. M. Schwartz",
+            "verbatim": true
+          },
+          {
+            "type": "plain_text",
+            "text": "*Author:* T. M. Schwartz",
+                    "emoji": true
+          },
+          {
+            "type": "image",
+            "image_url": "https://api.slack.com/img/blocks/bkb_template_images/goldengate.png",
+            "alt_text": "Example Image"
           }
         ]
       }
@@ -628,6 +666,7 @@ final class ContextBlockTests: XCTestCase {
   
   static var allTests = [
     ("testSimple", testSimple),
+    ("testComplete", testComplete),
   ]
 }
 

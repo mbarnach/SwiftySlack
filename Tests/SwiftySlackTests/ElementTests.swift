@@ -89,6 +89,49 @@ final class ElementTests: XCTestCase {
     expect{ jsonEncode(object: button) } == expectedJSON
   }
   
+  func testButtonConfirm() {
+    let url = URL(string: "https://api.slack.com/block-kit")!
+    let button = ButtonElement(
+      text: PlainText("Create Slack messages"),
+      url: url,
+      value: "click_me_123",
+      confirm: Confirmation(
+        title: PlainText("Craft or Learn?"),
+        text: Text("Documentation instead?"),
+        confirm: PlainText("Do it!"),
+        deny: PlainText("Read instead!")))
+    let expectedJSON = JSON(parseJSON: """
+      {
+        "type": "button",
+        "text": {
+          "type": "plain_text",
+          "text": "Create Slack messages"
+        },
+        "url": "https://api.slack.com/block-kit",
+        "confirm": {
+          "title": {
+              "type": "plain_text",
+              "text": "Craft or Learn?"
+          },
+          "text": {
+              "type": "mrkdwn",
+              "text": "Documentation instead?"
+          },
+          "confirm": {
+              "type": "plain_text",
+              "text": "Do it!"
+          },
+          "deny": {
+              "type": "plain_text",
+              "text": "Read instead!"
+          }
+        },
+        "value": "click_me_123"
+      }
+      """)
+    expect{ jsonEncode(object: button) } == expectedJSON
+  }
+  
   func testStaticSelect() {
     let select = StaticSelect(
       placeholder: PlainText("Select an item"),
@@ -285,6 +328,7 @@ final class ElementTests: XCTestCase {
     ("testButton", testButton),
     ("testButtonStyle", testButtonStyle),
     ("testButtonLink", testButtonLink),
+    ("testButtonConfirm", testButtonConfirm),
     ("testStaticSelect", testStaticSelect),
     ("testExternalSelect", testExternalSelect),
     ("testUserSelect", testUserSelect),

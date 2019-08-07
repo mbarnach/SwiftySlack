@@ -404,7 +404,7 @@ public class OverflowElement: Element {
   @TextLimit(255)
   public var action_id: String
   
-  @RangeLimit(2, 10)
+  @RangeLimit(2, 5)
   public var options: [Option]
   
   public var confirm: Confirmation?

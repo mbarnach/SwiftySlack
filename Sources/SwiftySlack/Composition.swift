@@ -34,8 +34,8 @@ public class Text: Encodable {
 }
 
 public class PlainText: Text {
-  public init(text: String, emoji: Bool? = nil, verbatim: Bool? = nil) {
-    super.init(text: text, type: .plain_text, emoji: emoji, verbatim: verbatim)
+  public init(text: String, emoji: Bool? = nil) {
+    super.init(text: text, type: .plain_text, emoji: emoji, verbatim: nil)
   }
   
   public required init(_ text: String) {
@@ -44,8 +44,8 @@ public class PlainText: Text {
 }
 
 public class MarkdownText: Text {
-  public init(text: String, emoji: Bool? = nil, verbatim: Bool? = nil) {
-    super.init(text: text, type: .mrkdwn, emoji: emoji, verbatim: verbatim)
+  public init(text: String, verbatim: Bool? = nil) {
+    super.init(text: text, type: .mrkdwn, emoji: nil, verbatim: verbatim)
   }
   
   public required init(_ text: String) {
