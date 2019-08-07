@@ -24,9 +24,9 @@ webAPI.send(message: message)
 ```
 
 `SwiftySlack` is using the [Promises](https://github.com/google/promises) for the response, instead of using the traditional closure completion handlers.
-The returned payload is resolved internally: the promise is fulfill if the payload is right, other it is rejected with the error message from Slack.
+The returned payload is resolved internally: the promise is fulfill if the payload is right, other it is rejected with the error message from Slack. The returned type is the initial Slack message, with metadata fields updated (channel, timestamp for parent manipulation, etc.).
 
-The payload is interpreted with [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON) for an easy manipulation.
+The payload is interpreted with [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON) for an easy manipulation, but you received a SwiftySlack `Message` object when fulfill.
 
 The requests are sent with [SwiftyRequest](https://github.com/IBM-Swift/SwiftyRequest).
 
@@ -79,10 +79,15 @@ let message = Message(blocks: blocks,
                       alternateText: "Notification")
 
 let webAPI = WebAPI(token: "xoxb-123456789")
-webAPI.send(message: message). then { json in
-  print("We receive the following payload: \(json)")
-}
-.catch { error in
+webAPI.send(message: message).then { parent in 
+  webAPI.send(message: Message(
+    blocks: [
+      SectionBlock(text: MarkdownText("*Custom* reply 1"))
+      ],
+      to: channel,
+      alternateText: "reply to",
+      reply: parent.thread_ts)
+}.catch { error in
   print("Something went wrong: \(error).")
 }
 ```
