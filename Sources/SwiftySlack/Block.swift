@@ -51,7 +51,7 @@ public class SectionBlock: Block {
   @TextLimit(3000)
   public var text: Text
   
-  @CountLimits(10, 2000)
+  @CountsLimit(10, 2000)
   public var fields: [Text]
   
   public var accessory: Element?

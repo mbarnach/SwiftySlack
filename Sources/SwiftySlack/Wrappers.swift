@@ -17,16 +17,23 @@ public class TextLimit<Value: Stringifiable> {
   public var value: Value
   let limit: Int
   
+  /// Ensure the field is limitted in size.
+  /// - Parameter limit: Limit to the value size.
+  /// - Note: The initial value is set to `.Empty()`.
   public init(_ limit: Int) {
     self.limit = limit
     self.value = Value.Empty()
   }
   
-  public init(initialValue value: Value, _ limit: Int) {
+  /// Ensure the `value` is limitted in size.
+  /// - Parameter value: The initial value. It will be clamped to the `limit` if needed.
+  /// - Parameter limit: Limit to the value size.
+  public init(_ value: Value, _ limit: Int) {
     self.value = value.prefix(limit: limit)
     self.limit = limit
   }
   
+  /// Access to the underlying value
   public var wrappedValue: Value {
     get { value }
     set { value = newValue.prefix(limit: limit) }
@@ -38,16 +45,23 @@ public class TextsLimit<Value: Stringifiable> {
   public var value: [Value]
   let limit: Int
   
+  /// Ensure the elements inside the field array are limitted in size.
+  /// - Parameter limit: Limit to the elements size.
+  /// - Note: The initial value is set to an empty array.
   public init(_ limit: Int) {
     self.value = []
     self.limit = limit
   }
   
-  public init(initialValue value: [Value], _ limit: Int) {
+  /// Ensure the elements inside the `value` array are limitted in size.
+  /// - Parameter value: The initial value
+  /// - Parameter limit: Limit to the elements size.
+  public init(_ value: [Value], _ limit: Int) {
     self.value = value.compactMap{ $0.prefix(limit: limit) }
     self.limit = limit
   }
   
+  /// Access to the underlying value
   public var wrappedValue: [Value] {
     get { value }
     set { value = newValue.compactMap{ $0.prefix(limit: limit) } }
@@ -59,16 +73,23 @@ public class CountLimit<Element> {
   public var value: [Element]
   let limit: Int
   
+  /// Ensure the field array has a limitted size.
+  /// - Parameter limit: Limit to the size of the array.
+  /// - Note: The initial value is set to an empty array.
   public init(_ limit: Int) {
     self.value = []
     self.limit = limit
   }
   
-  public init(initialValue value: [Element], _ limit: Int) {
+  /// Ensure the `value` array has a limitted size.
+  /// - Parameter value: The initial value.
+  /// - Parameter limit: Limit to the size of the array.
+  public init(_ value: [Element], _ limit: Int) {
     self.value = Array(value.prefix(limit))
     self.limit = limit
   }
   
+  /// Access to the underlying value
   public var wrappedValue: [Element] {
     get { value }
     set { value = Array(newValue.prefix(limit)) }
@@ -76,23 +97,32 @@ public class CountLimit<Element> {
 }
 
 @propertyWrapper
-public class CountLimits<Element: Stringifiable> {
+public class CountsLimit<Element: Stringifiable> {
   public var value: [Element]
   let countLimit: Int
   let innerLimit: Int
   
+  /// Ensure an array has a limited number of elements, each with a limitted size.
+  /// - Parameter countLimit: Limit for the array size.
+  /// - Parameter innerLimit: Limit for the inner elements size.
+  /// - Note: The initial value is set to an empty array.
   public init(_ countLimit: Int, _ innerLimit: Int) {
     self.value = []
     self.countLimit = countLimit
     self.innerLimit = innerLimit
   }
   
-  public init(initialValue value: [Element], _ countLimit: Int, _ innerLimit: Int) {
+  /// Ensure the `value` array has a limited number of elements, each with a limitted size.
+  /// - Parameter value: The initial value
+  /// - Parameter countLimit: Limit for the array size.
+  /// - Parameter innerLimit: Limit for the inner elements size.
+  public init(_ value: [Element], _ countLimit: Int, _ innerLimit: Int) {
     self.value = Array(value.compactMap{ $0.prefix(limit: innerLimit) }.prefix(countLimit))
     self.countLimit = countLimit
     self.innerLimit = innerLimit
   }
   
+  /// Access to the underlying value
   public var wrappedValue: [Element] {
     get { value }
     set {
@@ -105,20 +135,34 @@ public class CountLimits<Element: Stringifiable> {
 
 @propertyWrapper
 public class RangeLimit<Element> {
-  public var value: [Element] = []
+  public var value: [Element]
   let max: Int
   let min: Int
+  
+  /// Force and array to have values within a range.
+  /// - Parameter min: The minimum number of element in the array.
+  /// - Parameter max: The maximum number of elements in the array.
+  /// - Note: The initial value is set to an empty array, which may not match the requirement!
+  public init(_ min: Int, _ max: Int) {
+    self.value = []
+    self.max = max
+    self.min = min
+  }
   
   /// Force and array to have values within a range.
   /// - Parameter value: The initial value.
   /// - Parameter min: The minimum number of element in the array.
   /// - Parameter max: The maximum number of elements in the array.
-  /// - Note: On creation, the minimal size is not checked due to the need of having a value in creation. This is (in my opinion) a limitation of the approach.
-  public init(_ min: Int, _ max: Int) {
+  /// - Note: On creation, the minimal size is checked and a precondition is thrown if it didn't match.
+  public init(_ value: [Element], _ min: Int, _ max: Int) {
+    precondition(value.count >= min)
+    self.value = Array(value.prefix(max))
     self.max = max
     self.min = min
   }
   
+  /// Access to the underlying value
+  /// - Note: On set, the minimal size is checked and a precondition is thrown if it didn't match.
   public var wrappedValue: [Element] {
     get { value }
     set {
