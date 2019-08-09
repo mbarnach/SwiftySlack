@@ -19,7 +19,7 @@ final class MessageTests: XCTestCase {
   override func setUp() {
     self.token = ProcessInfo.processInfo.environment["TOKEN"] ?? ""
     self.channel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
-    self.user = ProcessInfo.processInfo.environment["SLACKUSER"] ?? "UHDRDP8R0"
+    self.user = ProcessInfo.processInfo.environment["SLACKUSER"] ?? ""
   }
   
   func testMessageComplete() {
