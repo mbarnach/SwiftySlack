@@ -31,6 +31,7 @@ public class Message: Encodable {
   public var unfurl_links: Bool?
   public var unfurl_media: Bool?
   public var username: String?
+  public var user: String? // Only for ephemeral messages.
   
   
   // MARK: Constructors
@@ -96,6 +97,7 @@ public class Message: Encodable {
     case unfurl_links
     case unfurl_media
     case username
+    case user
   }
   
   public func encode(to encoder: Encoder) throws {
@@ -126,7 +128,9 @@ public class Message: Encodable {
     if let reply_broadcast = reply_broadcast {
       try container.encode(reply_broadcast, forKey: .reply_broadcast)
     }
-    if let thread_ts = thread_ts {
+    if let user = user {
+      try container.encode(user, forKey: .user)
+    } else if let thread_ts = thread_ts {
       try container.encode(thread_ts, forKey: .thread_ts)
     }
     if let unfurl_links = unfurl_links {

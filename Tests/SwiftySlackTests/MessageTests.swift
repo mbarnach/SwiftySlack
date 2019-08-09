@@ -14,10 +14,12 @@ import SwiftyRequest
 final class MessageTests: XCTestCase {
   var token: String = ""
   var channel = ""
+  var user = ""
   
   override func setUp() {
     self.token = ProcessInfo.processInfo.environment["TOKEN"] ?? ""
     self.channel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
+    self.user = ProcessInfo.processInfo.environment["SLACKUSER"] ?? "UHDRDP8R0"
   }
   
   func testMessageComplete() {
@@ -1369,6 +1371,36 @@ final class MessageTests: XCTestCase {
     
     XCTAssert(waitForPromises(timeout: 10))
     expect{ promise.error }.to(beNil())
+  }
+  
+  func testMessageEphemeral() {
+    let webAPI = WebAPI(token: self.token)
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function,
+      as: false,
+      emoji: ":chart_with_upwards_trend:",
+      link: true,
+      useMarkdown: true,
+      parse: .full,
+      unfurl_links: true,
+      unfurl_media: true)).then { message in
+    
+        webAPI.send(ephemeral: Message(
+          blocks: [
+            SectionBlock(text: MarkdownText("Only seen to you!"))
+          ],
+          to: self.channel,
+          alternateText: #function),
+                    to: self.user)
+    }.then { message in
+      expect{ message.error }.to(beNil())
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
   }
 
   

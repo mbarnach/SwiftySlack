@@ -26,7 +26,17 @@ public struct WebAPI {
   }
   
   public func send(message: Message) -> Promise<Message> {
-    let request = RestRequest(method: .post, url: "https://slack.com/api/chat.postMessage")
+    return send(message: message, to: "https://slack.com/api/chat.postMessage")
+  }
+  
+  public func send(ephemeral message: Message, to user: String) -> Promise<Message> {
+    message.user = user
+    return send(message: message, to: "https://slack.com/api/chat.postEphemeral")
+  }
+  
+  
+  private func send(message: Message, to url: String) -> Promise<Message> {
+    let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
     
