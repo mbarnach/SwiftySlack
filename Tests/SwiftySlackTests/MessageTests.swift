@@ -15,11 +15,13 @@ final class MessageTests: XCTestCase {
   var token: String = ""
   var channel = ""
   var user = ""
+  var user2 = ""
   
   override func setUp() {
     self.token = ProcessInfo.processInfo.environment["TOKEN"] ?? ""
     self.channel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
     self.user = ProcessInfo.processInfo.environment["SLACKUSER"] ?? ""
+    self.user = ProcessInfo.processInfo.environment["SLACKUSER2"] ?? ""
   }
   
   func testMessageComplete() {
@@ -1402,6 +1404,40 @@ final class MessageTests: XCTestCase {
     
     XCTAssert(waitForPromises(timeout: 10))
   }
+  
+  func testFailureMessages() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.send(message: Message(blocks: [],
+      to: "No Channel", alternateText: "Not a valid channel"))
+      .then { message in
+        XCTFail("This message shouldn't succeed!")
+    }
+      .catch { error in
+        expect{ error }.to(matchError(MessageError.channel_not_found))
+    }
+    webAPI.send(ephemeral: Message(blocks: [],
+                                   to: self.channel,
+                                   alternateText: "Not in this channel"),
+                to: self.user2)
+      .then { message in
+        XCTFail("This message shouldn't succeed!")
+    }
+      .catch { error in
+        expect{ error }.to(matchError(MessageError.user_not_in_channel))
+    }
+    WebAPI(token: "").send(message: Message(blocks: [],
+                                 to: self.channel,
+                                 alternateText: "Invalid (empty) token!"))
+      .then { message in
+        XCTFail("This message shouldn't succeed!")
+    }
+      .catch { error in
+        expect{ error }.to(matchError(MessageError.not_authed))
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
 
   
   static var allTests = [
@@ -1415,5 +1451,7 @@ final class MessageTests: XCTestCase {
     ("testTemplatePoolMessage", testTemplatePoolMessage),
     ("testTemplateSearchMessage", testTemplateSearchMessage),
     ("testTemplateSearchAdditionalMessage", testTemplateSearchAdditionalMessage),
+    ("testMessageEphemeral", testMessageEphemeral),
+    ("testFailureMessages", testFailureMessages),
   ]
 }

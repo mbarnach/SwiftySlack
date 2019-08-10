@@ -147,13 +147,15 @@ public class Message: Encodable {
 
 internal class ReceivedMessage: Decodable {
   internal struct MetadataResponse: Decodable {
-      internal var warnings: [String] = []
+    internal var warnings: [String] = []
+    internal var messages: [String] = []
   }
   internal var ok: Bool
   internal var warning: String?
   internal var response_metadata: MetadataResponse?
-  internal var ts: String
+  internal var ts: String?
   internal var channel: String
+  internal var error: String?
   
   internal var message: Message?
   
@@ -171,6 +173,7 @@ internal class ReceivedMessage: Decodable {
     case response_metadata
     case ts
     case channel
+    case error
   }
   
   required init(from decoder: Decoder) throws {
@@ -178,7 +181,8 @@ internal class ReceivedMessage: Decodable {
     ok = try values.decode(Bool.self, forKey: .ok)
     warning = try? values.decode(String?.self, forKey: .warning)
     response_metadata = try? values.decode(MetadataResponse.self, forKey: .response_metadata)
-    ts = try values.decode(String.self, forKey: .ts)
-    channel = try values.decode(String.self, forKey: .channel)
+    ts = try? values.decode(String.self, forKey: .ts)
+    channel = (try? values.decode(String.self, forKey: .channel)) ?? ""
+    error = try? values.decode(String.self, forKey: .error)
   }
 }

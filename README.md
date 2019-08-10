@@ -92,10 +92,30 @@ webAPI.send(message: message).then { parent in
 }
 ```
 
+In case of error, you can retrieve a description like that:
+
+```swift
+webAPI.send(ephemeral: Message(blocks: [],
+                               to: self.channel,
+                               alternateText: "Not in this channel"),
+            to: "unknown user to this channel")
+  .catch { error in
+  print("Cannot send the message: \(error.description).")
+}
+```
+
 ![Notification template](NotificationTemplate.png "Slack Notification Template using SwiftySlack")
 
 
 `SwiftySlack` has been tested on all the Slack blocks templates (see the tests).
+
+## Features:
+
+Currently `SwiftySlack` supports:
+
+* Encoding the whole [Block Kit](https://api.slack.com/block-kit) API.
+* Sending messages.
+* Sending ephemeral messages.
 
 ## Notes:
 
