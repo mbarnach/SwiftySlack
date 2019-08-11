@@ -102,8 +102,10 @@ public class Message: Encodable {
   
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(blocks, forKey: .blocks)
     try container.encode(channel, forKey: .channel)
+    if blocks.isEmpty == false {
+      try container.encode(blocks, forKey: .blocks)
+    }
     if text != .Empty() {
       try container.encode(text, forKey: .text)
     }
@@ -184,5 +186,19 @@ internal class ReceivedMessage: Decodable {
     ts = try? values.decode(String.self, forKey: .ts)
     channel = (try? values.decode(String.self, forKey: .channel)) ?? ""
     error = try? values.decode(String.self, forKey: .error)
+  }
+}
+
+internal class DeletableMessage: Codable {
+  let channel: String
+  let as_user: Bool?
+  let ts: String
+  
+  internal init(channel: String,
+                id ts: String,
+                as user: Bool?) {
+    self.channel = channel
+    self.ts = ts
+    self.as_user = user
   }
 }

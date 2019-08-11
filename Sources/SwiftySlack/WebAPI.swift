@@ -16,6 +16,9 @@ public enum SwiftySlackError: Error {
 }
 
 public enum MessageError: String, Error {
+  case message_not_found
+  case cant_delete_message
+  case compliance_exports_prevent_deletion
   case not_in_channel
   case restricted_action_read_only_channel
   case restricted_action_thread_only_channel
@@ -49,6 +52,12 @@ public enum MessageError: String, Error {
   
   var description: String {
     switch self {
+    case .message_not_found:
+      return "No message exists with the requested timestamp."
+    case .cant_delete_message:
+      return "Authenticated user does not have permission to delete this message."
+    case .compliance_exports_prevent_deletion:
+      return "Compliance exports are on, messages can not be deleted."
     case .not_in_channel:
       return "Cannot post user messages to a channel they are not in."
     case .restricted_action_read_only_channel:
@@ -132,6 +141,23 @@ public struct WebAPI {
     return send(message: message, to: "https://slack.com/api/chat.postEphemeral")
   }
   
+  public func delete(message: Message) -> Promise<Message> {
+    guard let id = message.thread_ts else {
+      return Promise<Message> { _, reject in
+        reject(SwiftySlackError.internalError("Cannot delete the message: no parent provided."))
+      }
+    }
+    guard message.channel != .Empty() else {
+      return Promise<Message> { _, reject in
+        reject(SwiftySlackError.internalError("Cannot delete the message: no channel provided."))
+      }
+    }
+    let deletableMessage = DeletableMessage(channel: message.channel,
+                                            id: id,
+                                            as: message.as_user)
+    return send(message: deletableMessage, to: "https://slack.com/api/chat.delete")
+      .then { _ in return message }
+  }
   
   private func send(message: Message, to url: String) -> Promise<Message> {
     let request = RestRequest(method: .post, url: url)
@@ -140,7 +166,7 @@ public struct WebAPI {
     
     return Promise { fulfill, reject in
       do {
-      request.messageBody = try self.jsonEncoder.encode(message)
+        request.messageBody = try self.jsonEncoder.encode(message)
       } catch let error {
         reject(error)
       }
@@ -155,6 +181,41 @@ public struct WebAPI {
               reject(error)
             } else {
               fulfill(receivedMessage.update(with: message))
+            }
+          } catch let error {
+            reject(error)
+          }
+        case .failure(let error):
+          reject(error)
+        }
+      }
+    }
+  }
+
+  private func send(message: DeletableMessage, to url: String) -> Promise<DeletableMessage> {
+    let request = RestRequest(method: .post, url: url)
+    request.credentials = .bearerAuthentication(token: token)
+    request.acceptType = "application/json"
+    
+    return Promise { fulfill, reject in
+      do {
+        request.messageBody = try self.jsonEncoder.encode(message)
+      } catch let error {
+        reject(error)
+      }
+      request.responseData{ response in
+        switch response.result {
+        case .success(let retval):
+          do {
+            let decoder = JSONDecoder()
+            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
+            if receivedMessage.ok != true {
+              let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
+              reject(error)
+            } else {
+              fulfill(DeletableMessage(channel: receivedMessage.channel,
+                                       id: receivedMessage.ts ?? "",
+                                       as: nil))
             }
           } catch let error {
             reject(error)

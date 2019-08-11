@@ -1438,7 +1438,49 @@ final class MessageTests: XCTestCase {
     
     XCTAssert(waitForPromises(timeout: 10))
   }
-
+  
+  func testDeletion() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A message to *delete*"))
+      ],
+      to: channel,
+      alternateText: #function)).then { message in
+        webAPI.delete(message: message)
+    }.catch { error in
+        XCTFail("\(error)")
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
+  
+  func testDeletionNotExistingMessage() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.delete(message: Message(blocks: [],
+                                   to: "Wrong channel!!!", alternateText: ""))
+      .catch { error in
+        expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot delete the message: no parent provided.")))
+    }
+    
+    webAPI.delete(message: Message(blocks: [],
+                                   to: "",
+                                   alternateText: ""))
+      .catch { error in
+        expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot delete the message: no channel provided.")))
+    }
+    
+    webAPI.delete(message: Message(blocks: [],
+                                   to: "Wrong channel!!!", alternateText: "",
+                                   reply: "1234"))
+      .catch { error in
+        expect{ error }.to(matchError(MessageError.channel_not_found))
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
   
   static var allTests = [
     ("testMessageComplete", testMessageComplete),
@@ -1453,5 +1495,7 @@ final class MessageTests: XCTestCase {
     ("testTemplateSearchAdditionalMessage", testTemplateSearchAdditionalMessage),
     ("testMessageEphemeral", testMessageEphemeral),
     ("testFailureMessages", testFailureMessages),
+    ("testDeletion", testDeletion),
+    ("testDeletionNotExistingMessage", testDeletionNotExistingMessage),
   ]
 }
