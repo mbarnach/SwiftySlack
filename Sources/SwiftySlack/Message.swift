@@ -33,6 +33,8 @@ public class Message: Encodable {
   public var username: String?
   public var user: String? // Only for ephemeral messages.
   
+  internal var tsOrNot: Bool = false
+  
   
   // MARK: Constructors
   
@@ -93,7 +95,8 @@ public class Message: Encodable {
     case mrkdwn
     case parse
     case reply_broadcast
-    case thread_ts
+    case thread_ts // alternative naming
+    case ts // alternative naming
     case unfurl_links
     case unfurl_media
     case username
@@ -133,7 +136,7 @@ public class Message: Encodable {
     if let user = user {
       try container.encode(user, forKey: .user)
     } else if let thread_ts = thread_ts {
-      try container.encode(thread_ts, forKey: .thread_ts)
+      try container.encode(thread_ts, forKey: tsOrNot ? .ts : .thread_ts)
     }
     if let unfurl_links = unfurl_links {
       try container.encode(unfurl_links, forKey: .unfurl_links)
@@ -186,19 +189,5 @@ internal class ReceivedMessage: Decodable {
     ts = try? values.decode(String.self, forKey: .ts)
     channel = (try? values.decode(String.self, forKey: .channel)) ?? ""
     error = try? values.decode(String.self, forKey: .error)
-  }
-}
-
-internal class DeletableMessage: Codable {
-  let channel: String
-  let as_user: Bool?
-  let ts: String
-  
-  internal init(channel: String,
-                id ts: String,
-                as user: Bool?) {
-    self.channel = channel
-    self.ts = ts
-    self.as_user = user
   }
 }

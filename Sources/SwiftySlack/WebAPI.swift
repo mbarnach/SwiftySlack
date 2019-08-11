@@ -142,7 +142,7 @@ public struct WebAPI {
   }
   
   public func delete(message: Message) -> Promise<Message> {
-    guard let id = message.thread_ts else {
+    guard message.thread_ts != nil else {
       return Promise<Message> { _, reject in
         reject(SwiftySlackError.internalError("Cannot delete the message: no parent provided."))
       }
@@ -152,11 +152,8 @@ public struct WebAPI {
         reject(SwiftySlackError.internalError("Cannot delete the message: no channel provided."))
       }
     }
-    let deletableMessage = DeletableMessage(channel: message.channel,
-                                            id: id,
-                                            as: message.as_user)
-    return send(message: deletableMessage, to: "https://slack.com/api/chat.delete")
-      .then { _ in return message }
+    message.tsOrNot = true
+    return send(message: message, to: "https://slack.com/api/chat.delete")
   }
   
   private func send(message: Message, to url: String) -> Promise<Message> {
@@ -181,41 +178,6 @@ public struct WebAPI {
               reject(error)
             } else {
               fulfill(receivedMessage.update(with: message))
-            }
-          } catch let error {
-            reject(error)
-          }
-        case .failure(let error):
-          reject(error)
-        }
-      }
-    }
-  }
-
-  private func send(message: DeletableMessage, to url: String) -> Promise<DeletableMessage> {
-    let request = RestRequest(method: .post, url: url)
-    request.credentials = .bearerAuthentication(token: token)
-    request.acceptType = "application/json"
-    
-    return Promise { fulfill, reject in
-      do {
-        request.messageBody = try self.jsonEncoder.encode(message)
-      } catch let error {
-        reject(error)
-      }
-      request.responseData{ response in
-        switch response.result {
-        case .success(let retval):
-          do {
-            let decoder = JSONDecoder()
-            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
-            if receivedMessage.ok != true {
-              let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
-              reject(error)
-            } else {
-              fulfill(DeletableMessage(channel: receivedMessage.channel,
-                                       id: receivedMessage.ts ?? "",
-                                       as: nil))
             }
           } catch let error {
             reject(error)
