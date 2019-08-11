@@ -16,6 +16,8 @@ public enum SwiftySlackError: Error {
 }
 
 public enum MessageError: String, Error {
+  case cant_update_message
+  case edit_window_closed
   case message_not_found
   case cant_delete_message
   case compliance_exports_prevent_deletion
@@ -52,6 +54,10 @@ public enum MessageError: String, Error {
   
   var description: String {
     switch self {
+    case .cant_update_message:
+      return "Authenticated user does not have permission to update this message."
+    case .edit_window_closed:
+      return "The message cannot be edited due to the team message edit settings."
     case .message_not_found:
       return "No message exists with the requested timestamp."
     case .cant_delete_message:
@@ -154,6 +160,21 @@ public struct WebAPI {
     }
     message.tsOrNot = true
     return send(message: message, to: "https://slack.com/api/chat.delete")
+  }
+  
+  public func update(message: Message) -> Promise<Message> {
+    guard message.thread_ts != nil else {
+      return Promise<Message> { _, reject in
+        reject(SwiftySlackError.internalError("Cannot update the message: no id provided."))
+      }
+    }
+    guard message.channel != .Empty() else {
+      return Promise<Message> { _, reject in
+        reject(SwiftySlackError.internalError("Cannot update the message: no channel provided."))
+      }
+    }
+    message.tsOrNot = true
+    return send(message: message, to: "https://slack.com/api/chat.update")
   }
   
   private func send(message: Message, to url: String) -> Promise<Message> {

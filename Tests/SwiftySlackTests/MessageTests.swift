@@ -1482,6 +1482,33 @@ final class MessageTests: XCTestCase {
     XCTAssert(waitForPromises(timeout: 10))
   }
   
+  func testUpdateMessageMessage() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.send(message: Message(
+    blocks: [
+      SectionBlock(text: MarkdownText("A *custom* message"))
+    ],
+    to: channel,
+    alternateText: #function,
+    as: false,
+    emoji: ":chart_with_upwards_trend:",
+    link: true,
+    useMarkdown: true,
+    parse: .full,
+    unfurl_links: true,
+    unfurl_media: true)).then { message in
+      message.blocks[0] = SectionBlock(text: MarkdownText("A *custom* _updated_ message!"))
+    }.then { message in
+      webAPI.update(message: message)
+    }
+    .catch { error in
+      XCTFail("Cannot update the message: \(error).")
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
+  
   static var allTests = [
     ("testMessageComplete", testMessageComplete),
     ("testMessageReply", testMessageReply),
