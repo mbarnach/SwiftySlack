@@ -32,6 +32,8 @@ public class Message: Encodable {
   public var unfurl_media: Bool?
   public var username: String?
   public var user: String? // Only for ephemeral messages.
+  public internal(set) var post_at: String?
+  public internal(set) var scheduled_message_id: String?
   
   internal var tsOrNot: Bool = false
   
@@ -101,6 +103,8 @@ public class Message: Encodable {
     case unfurl_media
     case username
     case user
+    case post_at
+    case scheduled_message_id
   }
   
   public func encode(to encoder: Encoder) throws {
@@ -147,6 +151,12 @@ public class Message: Encodable {
     if let username = username {
       try container.encode(username, forKey: .username)
     }
+    if let post_at = post_at {
+      try container.encode(post_at, forKey: .post_at)
+    }
+    if let scheduled_message_id = scheduled_message_id {
+      try container.encode(scheduled_message_id, forKey: .scheduled_message_id)
+    }
   }
 }
 
@@ -161,12 +171,15 @@ internal class ReceivedMessage: Decodable {
   internal var ts: String?
   internal var channel: String
   internal var error: String?
+  internal var post_at: String?
+  internal var scheduled_message_id: String?
   
   internal var message: Message?
   
   internal func update(with message: Message) -> Message {
     message.channel = channel
     message.thread_ts = ts
+    message.scheduled_message_id = scheduled_message_id
     return message
   }
   
@@ -179,6 +192,8 @@ internal class ReceivedMessage: Decodable {
     case ts
     case channel
     case error
+    case post_at
+    case scheduled_message_id
   }
   
   required init(from decoder: Decoder) throws {
@@ -189,5 +204,7 @@ internal class ReceivedMessage: Decodable {
     ts = try? values.decode(String.self, forKey: .ts)
     channel = (try? values.decode(String.self, forKey: .channel)) ?? ""
     error = try? values.decode(String.self, forKey: .error)
+    post_at = try? values.decode(String.self, forKey: .post_at)
+    scheduled_message_id = try? values.decode(String.self, forKey: .scheduled_message_id)
   }
 }

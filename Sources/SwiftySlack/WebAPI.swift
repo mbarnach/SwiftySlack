@@ -16,6 +16,10 @@ public enum SwiftySlackError: Error {
 }
 
 public enum MessageError: String, Error {
+  case invalid_scheduled_message_id
+  case invalid_time
+  case time_in_past
+  case time_too_far
   case cant_update_message
   case edit_window_closed
   case message_not_found
@@ -54,6 +58,14 @@ public enum MessageError: String, Error {
   
   var description: String {
     switch self {
+    case .invalid_scheduled_message_id:
+      return "The scheduled_message_id passed is either an invalid ID, or the scheduled message it's referencing has already been sent or deleted."
+    case .invalid_time:
+      return "Schedule time value passed was invalid."
+    case .time_in_past:
+      return "Schedule time value passed was in the past."
+    case .time_too_far:
+      return "Schedule time value passed was too far into the future."
     case .cant_update_message:
       return "Authenticated user does not have permission to update this message."
     case .edit_window_closed:
@@ -142,6 +154,11 @@ public struct WebAPI {
     return send(message: message, to: "https://slack.com/api/chat.postMessage")
   }
   
+  public func send(message: Message, at date: Date) -> Promise<Message> {
+    message.post_at = "\(date.timeIntervalSince1970)"
+    return send(message: message, to: "https://slack.com/api/chat.scheduleMessage")
+  }
+  
   public func send(ephemeral message: Message, to user: String) -> Promise<Message> {
     message.user = user
     return send(message: message, to: "https://slack.com/api/chat.postEphemeral")
@@ -159,7 +176,11 @@ public struct WebAPI {
       }
     }
     message.tsOrNot = true
-    return send(message: message, to: "https://slack.com/api/chat.delete")
+    if let id = message.scheduled_message_id {
+      return send(message: message, to: "https://slack.com/api/chat.deleteScheduledMessage")
+    } else {
+      return send(message: message, to: "https://slack.com/api/chat.delete")
+    }
   }
   
   public func update(message: Message) -> Promise<Message> {
