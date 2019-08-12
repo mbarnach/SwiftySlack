@@ -165,7 +165,9 @@ public struct WebAPI {
   }
   
   public func delete(message: Message) -> Promise<Message> {
-    guard message.thread_ts != nil else {
+    guard message.thread_ts != nil ||
+      message.scheduled_message_id != nil
+      else {
       return Promise<Message> { _, reject in
         reject(SwiftySlackError.internalError("Cannot delete the message: no parent provided."))
       }
@@ -176,8 +178,13 @@ public struct WebAPI {
       }
     }
     message.tsOrNot = true
-    if let id = message.scheduled_message_id {
-      return send(message: message, to: "https://slack.com/api/chat.deleteScheduledMessage")
+    if message.scheduled_message_id != nil {
+      let messageToDelete = Message(blocks: [],
+                                    to: message.channel,
+                                    alternateText: nil)
+      messageToDelete.scheduled_message_id = message.scheduled_message_id
+      messageToDelete.as_user = message.as_user
+      return send(message: messageToDelete, to: "https://slack.com/api/chat.deleteScheduledMessage")
     } else {
       return send(message: message, to: "https://slack.com/api/chat.delete")
     }

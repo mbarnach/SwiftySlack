@@ -1525,9 +1525,9 @@ final class MessageTests: XCTestCase {
     .catch { error in
       XCTFail("Cannot schedule the message: \(error).")
     }
-    
+
     XCTAssert(waitForPromises(timeout: 10))
-    
+
     webAPI.send(message: Message(
        blocks: [
          SectionBlock(text: MarkdownText("A message from the past"))
@@ -1541,7 +1541,7 @@ final class MessageTests: XCTestCase {
          .catch { error in
            expect{ error }.to(matchError(MessageError.time_in_past))
        }
-    
+
     webAPI.send(message: Message(
       blocks: [
         SectionBlock(text: MarkdownText("A message from the past"))
@@ -1549,6 +1549,7 @@ final class MessageTests: XCTestCase {
       to: channel,
       alternateText: #function),
                 at: Calendar.current.date(byAdding: .day, value: 200, to: Date())!)
+      .delay(1)
       .then { message in
         XCTFail("This message shouldn't succeed!")
     }
@@ -1562,11 +1563,11 @@ final class MessageTests: XCTestCase {
       ],
       to: channel,
       alternateText: #function),
-                at: Calendar.current.date(byAdding: .second, value: 30, to: Date())!)
-      .then { message in
+                at: Calendar.current.date(byAdding: .minute, value: 2, to: Date())!)
+      .delay(1)
+    .then { message in
         webAPI.delete(message: message)
-    }
-    .catch { error in
+    }.catch { error in
       XCTFail("\(error)")
     }
     
@@ -1579,12 +1580,15 @@ final class MessageTests: XCTestCase {
                 at: Calendar.current.date(byAdding: .second, value: 30, to: Date())!)
       .then { message in
         message.scheduled_message_id = "000"
-    }.then { message in
-      webAPI.delete(message: message)
+    }.delay(1)
+      .then { message in
+        webAPI.delete(message: message)
     }
     .catch { error in
       expect{ error }.to(matchError(MessageError.invalid_scheduled_message_id))
     }
+    
+    XCTAssert(waitForPromises(timeout: 30))
   }
   
   static var allTests = [
