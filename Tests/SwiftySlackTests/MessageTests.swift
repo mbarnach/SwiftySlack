@@ -1591,6 +1591,47 @@ final class MessageTests: XCTestCase {
     XCTAssert(waitForPromises(timeout: 30))
   }
   
+  func testAddReaction() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message with a reaction"))
+      ],
+      to: channel,
+      alternateText: #function))
+      .then { message in
+        webAPI.add(reaction: "thumbsup", to: message)
+    }
+    .catch { error in
+      XCTFail("Cannot delete the reaction from the message: \(error).")
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
+  
+  func testRemoveReaction() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message with no reaction"))
+      ],
+      to: channel,
+      alternateText: #function))
+      .then { message in
+        webAPI.add(reaction: "thumbsup", to: message)
+    }
+    .then { message in
+      webAPI.remove(reaction: "thumbsup", to: message)
+    }
+    .catch { error in
+      XCTFail("Cannot delete the reaction from the message: \(error).")
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
+  
   static var allTests = [
     ("testMessageComplete", testMessageComplete),
     ("testMessageReply", testMessageReply),
@@ -1607,6 +1648,8 @@ final class MessageTests: XCTestCase {
     ("testDeleteMessage", testDeleteMessage),
     ("testDeletionNotExistingMessage", testDeletionNotExistingMessage),
     ("testUpdateMessage", testUpdateMessage),
-    ("testScheduleMessage", testScheduleMessage)
+    ("testScheduleMessage", testScheduleMessage),
+    ("testAddReaction", testAddReaction),
+    ("testRemoveReaction", testRemoveReaction),
   ]
 }

@@ -16,6 +16,14 @@ public enum SwiftySlackError: Error {
 }
 
 public enum MessageError: String, Error {
+  case file_comment_not_found
+  case invalid_name
+  case too_many_emoji
+  case already_reacted
+  case bad_timestamp
+  case too_many_reactions
+  case file_not_found
+  case no_item_specified
   case invalid_scheduled_message_id
   case invalid_time
   case time_in_past
@@ -58,6 +66,22 @@ public enum MessageError: String, Error {
   
   var description: String {
     switch self {
+    case .file_comment_not_found:
+      return "File comment specified by file_comment does not exist."
+    case .invalid_name:
+      return "Value passed for name was invalid."
+    case .too_many_emoji:
+      return "The limit for distinct reactions (i.e emoji) on the item has been reached."
+    case .already_reacted:
+      return "The specified item already has the user/reaction combination."
+    case .bad_timestamp:
+      return "Value passed for timestamp was invalid."
+    case .too_many_reactions:
+      return "The limit for reactions a person may add to the item has been reached."
+    case .file_not_found:
+      return "File specified by file does not exist."
+    case .no_item_specified:
+      return "file, file_comment, or combination of channel and timestamp was not specified."
     case .invalid_scheduled_message_id:
       return "The scheduled_message_id passed is either an invalid ID, or the scheduled message it's referencing has already been sent or deleted."
     case .invalid_time:
@@ -203,6 +227,67 @@ public struct WebAPI {
     }
     message.tsOrNot = true
     return send(message: message, to: "https://slack.com/api/chat.update")
+  }
+  
+  public func add(reaction name: String, to message: Message) -> Promise<Message> {
+    return send(json: SwiftyJSON.JSON(
+      [
+        "name": name,
+        "channel": message.channel,
+        "timestamp": message.thread_ts
+      ]
+      ),
+                        to: "https://slack.com/api/reactions.add")
+      .then{ _ in
+        return message
+    }
+  }
+  
+  public func remove(reaction name: String, to message: Message) -> Promise<Message> {
+    return send(json: SwiftyJSON.JSON(
+      [
+        "name": name,
+        "channel": message.channel,
+        "timestamp": message.thread_ts
+      ]
+      ),
+                        to: "https://slack.com/api/reactions.remove")
+      .then{ _ in
+        return message
+    }
+  }
+  
+  private func send(json: SwiftyJSON.JSON, to url: String) -> Promise<ReceivedMessage> {
+    let request = RestRequest(method: .post, url: url)
+    request.credentials = .bearerAuthentication(token: token)
+    request.acceptType = "application/json"
+    
+    return Promise { fulfill, reject in
+      do {
+        request.messageBody = try json.rawData()
+      } catch let error {
+        reject(error)
+      }
+      request.responseData{ response in
+        switch response.result {
+        case .success(let retval):
+          do {
+            let decoder = JSONDecoder()
+            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
+            if receivedMessage.ok != true {
+              let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
+              reject(error)
+            } else {
+              fulfill(receivedMessage)
+            }
+          } catch let error {
+            reject(error)
+          }
+        case .failure(let error):
+          reject(error)
+        }
+      }
+    }
   }
   
   private func send(message: Message, to url: String) -> Promise<Message> {
