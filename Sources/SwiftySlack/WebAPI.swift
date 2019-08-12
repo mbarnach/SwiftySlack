@@ -15,7 +15,7 @@ public enum SwiftySlackError: Error {
   case slackError(String)
 }
 
-public enum MessageError: String, Error {
+public enum MessageError: String, Error, CustomStringConvertible {
   case file_comment_not_found
   case invalid_name
   case too_many_emoji
@@ -64,7 +64,7 @@ public enum MessageError: String, Error {
   case request_timeout
   case fatal_error
   
-  var description: String {
+  public var description: String {
     switch self {
     case .file_comment_not_found:
       return "File comment specified by file_comment does not exist."

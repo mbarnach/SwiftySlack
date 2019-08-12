@@ -1461,13 +1461,19 @@ final class MessageTests: XCTestCase {
     
     webAPI.delete(message: Message(blocks: [],
                                    to: "Wrong channel!!!", alternateText: ""))
-      .catch { error in
-        expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot delete the message: no parent provided.")))
+      .then { _ in
+        XCTFail("This message cannot succeed.")
+    }
+    .catch { error in
+      expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot delete the message: no parent provided.")))
     }
     
     webAPI.delete(message: Message(blocks: [],
                                    to: "",
                                    alternateText: ""))
+      .then { _ in
+        XCTFail("This message cannot succeed.")
+    }
       .catch { error in
         expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot delete the message: no channel provided.")))
     }
@@ -1504,6 +1510,63 @@ final class MessageTests: XCTestCase {
     }
     .catch { error in
       XCTFail("Cannot update the message: \(error).")
+    }
+    
+    XCTAssert(waitForPromises(timeout: 10))
+  }
+  
+  func testUpdateFailureMessage() {
+    let webAPI = WebAPI(token: self.token)
+    
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function))
+      .then { message in
+        message.channel = "wrong channel"
+    }.then { message in
+      webAPI.update(message: message)
+    }.then { _ in
+      XCTFail("This message cannot succeed.")
+    }
+    .catch { error in
+      expect{ error }.to(matchError(MessageError.channel_not_found))
+    }
+    
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function))
+      .then { message in
+        message.thread_ts = nil
+    }.then { message in
+      webAPI.update(message: message)
+    }.then { _ in
+      XCTFail("This message cannot succeed.")
+    }
+    .catch { error in
+      expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot update the message: no id provided.")))
+    }
+    
+    webAPI.send(message: Message(
+      blocks: [
+        SectionBlock(text: MarkdownText("A *custom* message"))
+      ],
+      to: channel,
+      alternateText: #function))
+      .then { message in
+        message.channel = ""
+    }.then { message in
+      webAPI.update(message: message)
+    }.then { _ in
+      XCTFail("This message cannot succeed.")
+    }
+    .catch { error in
+      expect{ error }.to(matchError(SwiftySlackError.internalError("Cannot update the message: no channel provided.")))
     }
     
     XCTAssert(waitForPromises(timeout: 10))
@@ -1648,6 +1711,7 @@ final class MessageTests: XCTestCase {
     ("testDeleteMessage", testDeleteMessage),
     ("testDeletionNotExistingMessage", testDeletionNotExistingMessage),
     ("testUpdateMessage", testUpdateMessage),
+    ("testUpdateFailureMessage", testUpdateFailureMessage),
     ("testScheduleMessage", testScheduleMessage),
     ("testAddReaction", testAddReaction),
     ("testRemoveReaction", testRemoveReaction),
