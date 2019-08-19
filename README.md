@@ -116,6 +116,10 @@ Currently `SwiftySlack` supports:
 * Encoding the whole [Block Kit](https://api.slack.com/block-kit) API.
 * Sending messages.
 * Sending ephemeral messages.
+* Delete messages.
+* Update messages.
+* Schedule messages and delete them.
+* Reaction to messages.
 
 ## Notes:
 
