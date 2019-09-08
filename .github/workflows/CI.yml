@@ -4,12 +4,15 @@ on: [push]
 
 jobs:
   build:
-    name: Test
-    runs-on: macOS-latest
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
     
     steps:
     - uses: actions/checkout@v1
-    - name: Build SwiftySlack
+    - name: Build SwiftySlack for ${{ matrix.os }}
       run: swift build
-    - name: Run tests
+    - name: Run tests on ${{ matrix.os }}
       run: swift test
