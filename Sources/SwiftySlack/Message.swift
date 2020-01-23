@@ -160,23 +160,23 @@ public class Message: Encodable {
   }
 }
 
-internal class ReceivedMessage: Decodable {
-  internal struct MetadataResponse: Decodable {
-    internal var warnings: [String] = []
-    internal var messages: [String] = []
+public class ReceivedMessage: Decodable {
+  public struct MetadataResponse: Decodable {
+    public var warnings: [String] = []
+    public var messages: [String] = []
   }
-  internal var ok: Bool
-  internal var warning: String?
-  internal var response_metadata: MetadataResponse?
-  internal var ts: String?
-  internal var channel: String
-  internal var error: String?
-  internal var post_at: String?
-  internal var scheduled_message_id: String?
+  public var ok: Bool
+  public var warning: String?
+  public var response_metadata: MetadataResponse?
+  public var ts: String?
+  public var channel: String
+  public var error: String?
+  public var post_at: String?
+  public var scheduled_message_id: String?
   
-  internal var message: Message?
+  public var message: Message?
   
-  internal func update(with message: Message) -> Message {
+  public func update(with message: Message) -> Message {
     message.channel = channel
     message.thread_ts = ts
     message.scheduled_message_id = scheduled_message_id
