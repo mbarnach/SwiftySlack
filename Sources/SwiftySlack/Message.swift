@@ -196,7 +196,7 @@ public class ReceivedMessage: Decodable {
     case scheduled_message_id
   }
   
-  required init(from decoder: Decoder) throws {
+  required public init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     ok = try values.decode(Bool.self, forKey: .ok)
     warning = try? values.decode(String?.self, forKey: .warning)
