@@ -35,7 +35,7 @@ public class Message: Encodable {
   public internal(set) var post_at: String?
   public internal(set) var scheduled_message_id: String?
   
-  internal var tsOrNot: Bool = false
+  public var tsOrNot: Bool = false
   
   
   // MARK: Constructors
