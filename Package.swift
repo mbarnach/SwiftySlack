@@ -14,7 +14,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
       .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: "5.0.0"),
-      .package(url: "https://github.com/IBM-Swift/SwiftyRequest", from: "2.1.1"),
+      .package(url: "https://github.com/IBM-Swift/SwiftyRequest", from: "3.1.0"),
       .package(url: "https://github.com/google/promises", from: "1.2.8"),
       
       // Testing dependencies

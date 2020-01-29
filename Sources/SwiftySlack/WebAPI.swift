@@ -269,11 +269,11 @@ public struct WebAPI {
         reject(error)
       }
       request.responseData{ response in
-        switch response.result {
+        switch response {
         case .success(let retval):
           do {
             let decoder = JSONDecoder()
-            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
+            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
             if receivedMessage.ok != true {
               let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
               reject(error)
@@ -302,11 +302,11 @@ public struct WebAPI {
         reject(error)
       }
       request.responseData{ response in
-        switch response.result {
+        switch response {
         case .success(let retval):
           do {
             let decoder = JSONDecoder()
-              let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
+              let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
             if receivedMessage.ok != true {
               let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
               reject(error)
