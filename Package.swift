@@ -19,7 +19,7 @@ let package = Package(
       
       // Testing dependencies
          .package(url: "https://github.com/Quick/Nimble", from: "8.0.2"),
-         .package(url: "https://github.com/mattgallagher/CwlPreconditionTesting.git", from: Version("2.0.0-beta.1")),
+         .package(url: "https://github.com/mattgallagher/CwlPreconditionTesting.git", from: "1.2.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -29,6 +29,12 @@ let package = Package(
             dependencies: ["SwiftyRequest", "SwiftyJSON", "Promises"]),
         .testTarget(
             name: "SwiftySlackTests",
-            dependencies: ["SwiftySlack", "Nimble", "SwiftyJSON", "SwiftyRequest", "CwlPreconditionTesting"]),
+            dependencies: [
+                "SwiftySlack",
+                "Nimble",
+                "SwiftyJSON",
+                "SwiftyRequest",
+                "CwlPreconditionTesting"
+            ]),
     ]
 )
