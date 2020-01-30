@@ -50,28 +50,6 @@ public class Promise<Value>: Future<Value> {
     }
 }
 
-extension URLSession {
-    func request(url: URL) -> Future<Data> {
-        // We'll start by constructing a Promise, that will later be
-        // returned as a Future:
-        let promise = Promise<Data>()
-
-        // Perform a data task, just like we normally would:
-        let task = dataTask(with: url) { data, _, error in
-            // Reject or resolve the promise, depending on the result:
-            if let error = error {
-                promise.reject(with: error)
-            } else {
-                promise.resolve(with: data ?? Data())
-            }
-        }
-
-        task.resume()
-
-        return promise
-    }
-}
-
 public extension Future {
     func chained<T>(
         using closure: @escaping (Value) throws -> Future<T>
