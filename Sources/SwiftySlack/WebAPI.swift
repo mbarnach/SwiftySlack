@@ -8,7 +8,6 @@
 import Foundation
 import SwiftyRequest
 import SwiftyJSON
-import Promises
 
 public enum SwiftySlackError: Error {
   case internalError(String)
@@ -174,32 +173,31 @@ public struct WebAPI {
     jsonEncoder.outputFormatting = .prettyPrinted
   }
   
-  public func send(message: Message) -> Promise<Message> {
+  public func send(message: Message) -> Future<Message> {
     return send(message: message, to: "https://slack.com/api/chat.postMessage")
   }
   
-  public func send(message: Message, at date: Date) -> Promise<Message> {
+  public func send(message: Message, at date: Date) -> Future<Message> {
     message.post_at = "\(date.timeIntervalSince1970)"
     return send(message: message, to: "https://slack.com/api/chat.scheduleMessage")
   }
   
-  public func send(ephemeral message: Message, to user: String) -> Promise<Message> {
+  public func send(ephemeral message: Message, to user: String) -> Future<Message> {
     message.user = user
     return send(message: message, to: "https://slack.com/api/chat.postEphemeral")
   }
   
-  public func delete(message: Message) -> Promise<Message> {
+  public func delete(message: Message) -> Future<Message> {
+    let promise = Promise<Message>()
     guard message.thread_ts != nil ||
       message.scheduled_message_id != nil
       else {
-      return Promise<Message> { _, reject in
-        reject(SwiftySlackError.internalError("Cannot delete the message: no parent provided."))
-      }
+      promise.reject(with: SwiftySlackError.internalError("Cannot delete the message: no parent provided."))
+      return promise
     }
     guard message.channel != .Empty() else {
-      return Promise<Message> { _, reject in
-        reject(SwiftySlackError.internalError("Cannot delete the message: no channel provided."))
-      }
+      promise.reject(with: SwiftySlackError.internalError("Cannot delete the message: no channel provided."))
+      return promise
     }
     message.tsOrNot = true
     if message.scheduled_message_id != nil {
@@ -214,22 +212,21 @@ public struct WebAPI {
     }
   }
   
-  public func update(message: Message) -> Promise<Message> {
+  public func update(message: Message) -> Future<Message> {
+    let promise = Promise<Message>()
     guard message.thread_ts != nil else {
-      return Promise<Message> { _, reject in
-        reject(SwiftySlackError.internalError("Cannot update the message: no id provided."))
-      }
+      promise.reject(with: SwiftySlackError.internalError("Cannot update the message: no id provided."))
+      return promise
     }
     guard message.channel != .Empty() else {
-      return Promise<Message> { _, reject in
-        reject(SwiftySlackError.internalError("Cannot update the message: no channel provided."))
-      }
+      promise.reject(with: SwiftySlackError.internalError("Cannot update the message: no channel provided."))
+      return promise
     }
     message.tsOrNot = true
     return send(message: message, to: "https://slack.com/api/chat.update")
   }
   
-  public func add(reaction name: String, to message: Message) -> Promise<Message> {
+  public func add(reaction name: String, to message: Message) -> Future<Message> {
     return send(json: SwiftyJSON.JSON(
       [
         "name": name,
@@ -238,12 +235,12 @@ public struct WebAPI {
       ]
       ),
                         to: "https://slack.com/api/reactions.add")
-      .then{ _ in
+      .transformed{ _ in
         return message
     }
   }
   
-  public func remove(reaction name: String, to message: Message) -> Promise<Message> {
+  public func remove(reaction name: String, to message: Message) -> Future<Message> {
     return send(json: SwiftyJSON.JSON(
       [
         "name": name,
@@ -252,74 +249,74 @@ public struct WebAPI {
       ]
       ),
                         to: "https://slack.com/api/reactions.remove")
-      .then{ _ in
+      .transformed{ _ in
         return message
     }
   }
   
-  private func send(json: SwiftyJSON.JSON, to url: String) -> Promise<ReceivedMessage> {
+  private func send(json: SwiftyJSON.JSON, to url: String) -> Future<ReceivedMessage> {
     let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
-    
-    return Promise { fulfill, reject in
-      do {
-        request.messageBody = try json.rawData()
-      } catch let error {
-        reject(error)
-      }
-      request.responseData{ response in
-        switch response {
-        case .success(let retval):
-          do {
-            let decoder = JSONDecoder()
-            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
-            if receivedMessage.ok != true {
-              let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
-              reject(error)
-            } else {
-              fulfill(receivedMessage)
-            }
-          } catch let error {
-            reject(error)
+    let promise = Promise<ReceivedMessage>()
+
+    do {
+      request.messageBody = try json.rawData()
+    } catch let error {
+      promise.reject(with: error)
+    }
+    request.responseData{ response in
+      switch response {
+      case .success(let retval):
+        do {
+          let decoder = JSONDecoder()
+          let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
+          if receivedMessage.ok != true {
+            let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
+            promise.reject(with: error)
+          } else {
+            promise.resolve(with: receivedMessage)
           }
-        case .failure(let error):
-          reject(error)
+        } catch let error {
+          promise.reject(with: error)
         }
+      case .failure(let error):
+        promise.reject(with: error)
       }
     }
+    return promise
   }
   
-  private func send(message: Message, to url: String) -> Promise<Message> {
+  private func send(message: Message, to url: String) -> Future<Message> {
     let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
     
-    return Promise { fulfill, reject in
-      do {
-        request.messageBody = try self.jsonEncoder.encode(message)
-      } catch let error {
-        reject(error)
-      }
-      request.responseData{ response in
-        switch response {
-        case .success(let retval):
-          do {
-            let decoder = JSONDecoder()
-              let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
-            if receivedMessage.ok != true {
-              let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
-              reject(error)
-            } else {
-              fulfill(receivedMessage.update(with: message))
-            }
-          } catch let error {
-            reject(error)
+    let promise = Promise<Message>()
+    do {
+      request.messageBody = try self.jsonEncoder.encode(message)
+    } catch let error {
+      promise.reject(with: error)
+    }
+    request.responseData{ response in
+      switch response {
+      case .success(let retval):
+        do {
+          let decoder = JSONDecoder()
+            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
+          if receivedMessage.ok != true {
+            let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
+            promise.reject(with: error)
+          } else {
+            promise.resolve(with: receivedMessage.update(with: message))
           }
-        case .failure(let error):
-          reject(error)
+        } catch let error {
+          promise.reject(with: error)
         }
+      case .failure(let error):
+        promise.reject(with: error)
       }
     }
+    return promise
   }
 }

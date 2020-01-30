@@ -15,7 +15,6 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
       .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: "5.0.0"),
       .package(url: "https://github.com/IBM-Swift/SwiftyRequest", from: "3.1.0"),
-      .package(url: "https://github.com/google/promises", from: "1.2.8"),
       
       // Testing dependencies
          .package(url: "https://github.com/Quick/Nimble", from: "8.0.2"),
@@ -26,7 +25,10 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "SwiftySlack",
-            dependencies: ["SwiftyRequest", "SwiftyJSON", "Promises"]),
+            dependencies: [
+                "SwiftyRequest",
+                "SwiftyJSON",
+            ]),
         .testTarget(
             name: "SwiftySlackTests",
             dependencies: [
