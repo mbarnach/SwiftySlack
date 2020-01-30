@@ -7,7 +7,6 @@
 
 import XCTest
 import Nimble
-import SwiftyJSON
 @testable import SwiftySlack
 
 // Test values are coming from the Slack documentation:

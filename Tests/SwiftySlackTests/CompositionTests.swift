@@ -8,7 +8,6 @@
 
 import XCTest
 import Nimble
-import SwiftyJSON
 @testable import SwiftySlack
 
 final class CompositionTests: XCTestCase {

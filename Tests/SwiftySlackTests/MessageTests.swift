@@ -6,6 +6,5 @@
 //
 import XCTest
 import Nimble
-import SwiftyJSON
 import SwiftyRequest
 @testable import SwiftySlack

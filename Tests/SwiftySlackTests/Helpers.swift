@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import SwiftyJSON
 
 func jsonEncode<Value: Encodable>(object: Value) -> JSON {
   let jsonEncoder = JSONEncoder()

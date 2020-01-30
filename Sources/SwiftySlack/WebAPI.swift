@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftyRequest
-import SwiftyJSON
 
 public enum SwiftySlackError: Error {
   case internalError(String)
@@ -227,44 +226,40 @@ public struct WebAPI {
   }
   
   public func add(reaction name: String, to message: Message) -> Future<Message> {
-    return send(json: SwiftyJSON.JSON(
+    return send(json: """
       [
-        "name": name,
-        "channel": message.channel,
-        "timestamp": message.thread_ts
+        "name": "\(name)",
+        "channel": "\(message.channel)",
+        "timestamp": "\(message.thread_ts ?? "")"
       ]
-      ),
-                        to: "https://slack.com/api/reactions.add")
+      """.data(using: .utf8),
+                to: "https://slack.com/api/reactions.add")
       .transformed{ _ in
         return message
     }
   }
   
   public func remove(reaction name: String, to message: Message) -> Future<Message> {
-    return send(json: SwiftyJSON.JSON(
+    return send(json: """
       [
-        "name": name,
-        "channel": message.channel,
-        "timestamp": message.thread_ts
+        "name": "\(name)",
+        "channel": "\(message.channel)",
+        "timestamp": "\(message.thread_ts ?? "")"
       ]
-      ),
-                        to: "https://slack.com/api/reactions.remove")
+      """.data(using: .utf8),
+                to: "https://slack.com/api/reactions.remove")
       .transformed{ _ in
         return message
     }
   }
   
-  private func send(json: SwiftyJSON.JSON, to url: String) -> Future<ReceivedMessage> {
+  private func send(json: Data?, to url: String) -> Future<ReceivedMessage> {
     let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
     let promise = Promise<ReceivedMessage>()
 
-    do {
-      request.messageBody = try json.rawData()
-    } catch let error {
-      promise.reject(with: error)
-    }
+    request.messageBody = json
     request.responseData{ response in
       switch response {
       case .success(let retval):
