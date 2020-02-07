@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftyRequest
-import SwiftyJSON
 import Promises
 
 public enum SwiftySlackError: Error {
@@ -229,14 +228,18 @@ public struct WebAPI {
     return send(message: message, to: "https://slack.com/api/chat.update")
   }
   
+  func stringToJSON(_ jsonString : String) -> Data {
+    return (try? JSONSerialization.data(withJSONObject: jsonString, options: [])) ?? Data()
+  }
+  
   public func add(reaction name: String, to message: Message) -> Promise<Message> {
-    return send(json: SwiftyJSON.JSON(
+    return send(json: stringToJSON("""
       [
-        "name": name,
-        "channel": message.channel,
-        "timestamp": message.thread_ts
+        "name": \(name),
+        "channel": \(message.channel),
+        "timestamp": \(message.thread_ts)
       ]
-      ),
+      """),
                         to: "https://slack.com/api/reactions.add")
       .then{ _ in
         return message
@@ -244,36 +247,32 @@ public struct WebAPI {
   }
   
   public func remove(reaction name: String, to message: Message) -> Promise<Message> {
-    return send(json: SwiftyJSON.JSON(
+    return send(json: stringToJSON("""
       [
-        "name": name,
-        "channel": message.channel,
-        "timestamp": message.thread_ts
+        "name": \(name),
+        "channel": \(message.channel),
+        "timestamp": \(message.thread_ts)
       ]
-      ),
+      """),
                         to: "https://slack.com/api/reactions.remove")
       .then{ _ in
         return message
     }
   }
   
-  private func send(json: SwiftyJSON.JSON, to url: String) -> Promise<ReceivedMessage> {
+  private func send(json: Data, to url: String) -> Promise<ReceivedMessage> {
     let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
     
     return Promise { fulfill, reject in
-      do {
-        request.messageBody = try json.rawData()
-      } catch let error {
-        reject(error)
-      }
+      request.messageBody = json
       request.responseData{ response in
-        switch response {
+        switch response.result {
         case .success(let retval):
           do {
             let decoder = JSONDecoder()
-            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
+            let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
             if receivedMessage.ok != true {
               let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
               reject(error)
@@ -302,11 +301,11 @@ public struct WebAPI {
         reject(error)
       }
       request.responseData{ response in
-        switch response {
+        switch response.result {
         case .success(let retval):
           do {
             let decoder = JSONDecoder()
-              let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval.body)
+              let receivedMessage = try decoder.decode(ReceivedMessage.self, from: retval)
             if receivedMessage.ok != true {
               let error: Error = MessageError(rawValue: receivedMessage.error ?? "") ?? SwiftySlackError.slackError("Unrecognized error")
               reject(error)
