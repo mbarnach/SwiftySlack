@@ -19,14 +19,14 @@ final class ElementTests: XCTestCase {
     let button = ImageElement(
       image_url: URL(string: "http://placekitten.com/700/500")!,
       alt_text: "Multiple cute kittens")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "image",
         "image_url": "http://placekitten.com/700/500",
         "alt_text": "Multiple cute kittens"
       }
-      """)
-    expect{ jsonEncode(object: button) } == expectedJSON
+      """
+    expect{ jsonEncode(object: button) == convert(json: expectedJSON) } == true
   }
   
   func testButton() {
@@ -34,7 +34,7 @@ final class ElementTests: XCTestCase {
       text: PlainText("Click Me"),
       action_id: "button",
       value: "click_me_123")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "button",
         "text": {
@@ -44,8 +44,8 @@ final class ElementTests: XCTestCase {
         "value": "click_me_123",
         "action_id": "button"
       }
-      """)
-    expect{ jsonEncode(object: button) } == expectedJSON
+      """
+    expect{ jsonEncode(object: button) == convert(json: expectedJSON) } == true
   }
   
   func testButtonStyle() {
@@ -54,7 +54,7 @@ final class ElementTests: XCTestCase {
       action_id: "button",
       value: "click_me_123",
       style: .primary)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "button",
         "text": {
@@ -65,8 +65,8 @@ final class ElementTests: XCTestCase {
         "value": "click_me_123",
         "action_id": "button"
       }
-      """)
-    expect{ jsonEncode(object: button) } == expectedJSON
+      """
+    expect{ jsonEncode(object: button) == convert(json: expectedJSON) } == true
   }
   
   func testButtonLink() {
@@ -75,7 +75,7 @@ final class ElementTests: XCTestCase {
       text: PlainText("Link Button"),
       action_id: .Empty(),
       url: url)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "button",
         "text": {
@@ -84,8 +84,8 @@ final class ElementTests: XCTestCase {
         },
         "url": "https://api.slack.com/block-kit"
       }
-      """)
-    expect{ jsonEncode(object: button) } == expectedJSON
+      """
+    expect{ jsonEncode(object: button) == convert(json: expectedJSON) } == true
   }
   
   func testButtonConfirm() {
@@ -99,7 +99,7 @@ final class ElementTests: XCTestCase {
         text: Text("Documentation instead?"),
         confirm: PlainText("Do it!"),
         deny: PlainText("Read instead!")))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "button",
         "text": {
@@ -127,8 +127,8 @@ final class ElementTests: XCTestCase {
         },
         "value": "click_me_123"
       }
-      """)
-    expect{ jsonEncode(object: button) } == expectedJSON
+      """
+    expect{ jsonEncode(object: button) == convert(json: expectedJSON) } == true
   }
   
   func testStaticSelect() {
@@ -146,7 +146,7 @@ final class ElementTests: XCTestCase {
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!"))
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "action_id": "text1234",
         "type": "static_select",
@@ -196,8 +196,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: select) } == expectedJSON
+      """
+    expect{ jsonEncode(object: select) == convert(json: expectedJSON) } == true
   }
   
   func testStaticSelectOptionGroups() {
@@ -224,7 +224,7 @@ final class ElementTests: XCTestCase {
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!"))
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "action_id": "text1234",
         "type": "static_select",
@@ -297,8 +297,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: select) } == expectedJSON
+      """
+    expect{ jsonEncode(object: select) == convert(json: expectedJSON) } == true
   }
   
   func testExternalSelect() {
@@ -312,7 +312,7 @@ final class ElementTests: XCTestCase {
         text: Text("Wouldn't you prefer a good game of _chess_?"),
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!")))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "action_id": "text1234",
         "type": "external_select",
@@ -347,8 +347,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: select) } == expectedJSON
+      """
+    expect{ jsonEncode(object: select) == convert(json: expectedJSON) } == true
   }
   
   func testUserSelect() {
@@ -361,7 +361,7 @@ final class ElementTests: XCTestCase {
         text: Text("Wouldn't you prefer a good game of _chess_?"),
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!")))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "action_id": "text1234",
         "type": "users_select",
@@ -389,8 +389,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: select) } == expectedJSON
+      """
+    expect{ jsonEncode(object: select) == convert(json: expectedJSON) } == true
   }
   
   func testConversationSelect() {
@@ -403,7 +403,7 @@ final class ElementTests: XCTestCase {
         text: Text("Wouldn't you prefer a good game of _chess_?"),
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!")))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "action_id": "text1234",
         "type": "conversations_select",
@@ -431,8 +431,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: select) } == expectedJSON
+      """
+    expect{ jsonEncode(object: select) == convert(json: expectedJSON) } == true
   }
   
   func testChannelSelect() {
@@ -446,7 +446,7 @@ final class ElementTests: XCTestCase {
         text: Text("Wouldn't you prefer a good game of _chess_?"),
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!")))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "action_id": "text1234",
         "type": "channels_select",
@@ -474,8 +474,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: select) } == expectedJSON
+      """
+    expect{ jsonEncode(object: select) == convert(json: expectedJSON) } == true
   }
   
   func testOverflow() {
@@ -494,7 +494,7 @@ final class ElementTests: XCTestCase {
         confirm: PlainText("Do it"),
         deny: PlainText("Stop, I've changed my mind!"))
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "overflow",
         "options": [
@@ -554,8 +554,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: overflow) } == expectedJSON
+      """
+    expect{ jsonEncode(object: overflow) == convert(json: expectedJSON) } == true
   }
   
   func testDatepicker() {
@@ -568,7 +568,7 @@ final class ElementTests: XCTestCase {
           text: Text("Wouldn't you prefer a good game of _chess_?"),
           confirm: PlainText("Do it"),
           deny: PlainText("Stop, I've changed my mind!")))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "datepicker",
         "action_id": "datepicker123",
@@ -596,8 +596,8 @@ final class ElementTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: date) } == expectedJSON
+      """
+    expect{ jsonEncode(object: date) == convert(json: expectedJSON) } == true
   }
   
   static var allTests = [

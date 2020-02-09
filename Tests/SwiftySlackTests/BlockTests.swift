@@ -16,7 +16,7 @@ final class SectionBlockTests: XCTestCase {
   
   func testSimple() {
     let section = SectionBlock(text: Text("A message *with some bold text* and _some italicized text_."))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type": "section",
           "text": {
@@ -24,8 +24,8 @@ final class SectionBlockTests: XCTestCase {
             "text": "A message *with some bold text* and _some italicized text_."
           }
         }
-        """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+        """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testTextFields() {
@@ -35,7 +35,7 @@ final class SectionBlockTests: XCTestCase {
         MarkdownText("High"),
         PlainText(text: "String", emoji: true)
     ])
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "text": {
@@ -54,8 +54,8 @@ final class SectionBlockTests: XCTestCase {
           }
         ]
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testImage() {
@@ -67,7 +67,7 @@ final class SectionBlockTests: XCTestCase {
         image_url: URL(string: "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg")!,
         alt_text: "cute cat")
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section567",
@@ -81,8 +81,8 @@ final class SectionBlockTests: XCTestCase {
           "alt_text": "cute cat"
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testStaticSelect() {
@@ -100,7 +100,7 @@ final class SectionBlockTests: XCTestCase {
       block_id: "section678",
       fields: [],
       accessory: select)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section678",
@@ -140,8 +140,8 @@ final class SectionBlockTests: XCTestCase {
             ]
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testExternalSelect() {
@@ -154,7 +154,7 @@ final class SectionBlockTests: XCTestCase {
       block_id: "section678",
       fields: [],
       accessory: select)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section678",
@@ -172,8 +172,8 @@ final class SectionBlockTests: XCTestCase {
           "min_query_length": 3
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testUserSelect() {
@@ -185,7 +185,7 @@ final class SectionBlockTests: XCTestCase {
       block_id: "section678",
       fields: [],
       accessory: select)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section678",
@@ -202,8 +202,8 @@ final class SectionBlockTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testConversationSelect() {
@@ -215,7 +215,7 @@ final class SectionBlockTests: XCTestCase {
       block_id: "section678",
       fields: [],
       accessory: select)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section678",
@@ -232,8 +232,8 @@ final class SectionBlockTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testChannelSelect() {
@@ -245,7 +245,7 @@ final class SectionBlockTests: XCTestCase {
       block_id: "section678",
       fields: [],
       accessory: select)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section678",
@@ -262,8 +262,8 @@ final class SectionBlockTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testOverflow() {
@@ -288,7 +288,7 @@ final class SectionBlockTests: XCTestCase {
         ]
       )
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "block_id": "section 890",
@@ -335,8 +335,8 @@ final class SectionBlockTests: XCTestCase {
           "action_id": "overflow"
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   func testDatepicker() {
@@ -347,7 +347,7 @@ final class SectionBlockTests: XCTestCase {
         action_id: "datepicker123",
         initial_date: DatePickerElement.date(from: "1990-04-28")!)
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "section",
         "text": {
@@ -364,8 +364,8 @@ final class SectionBlockTests: XCTestCase {
           }
         }
       }
-      """)
-    expect{ jsonEncode(object: section) } == expectedJSON
+      """
+    expect{ jsonEncode(object: section) == convert(json: expectedJSON) } == true
   }
   
   static var allTests = [
@@ -381,12 +381,12 @@ final class DividerBlockTests: XCTestCase {
   
   func testSimple() {
     let divider = DividerBlock()
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type": "divider"
         }
-        """)
-    expect{ jsonEncode(object: divider) } == expectedJSON
+        """
+    expect{ jsonEncode(object: divider) == convert(json: expectedJSON) } == true
   }
   static var allTests = [
     ("testSimple", testSimple),
@@ -401,7 +401,7 @@ final class ImageBlockTests: XCTestCase {
       alt_text: "An incredibly cute kitten.",
       title: PlainText("Please enjoy this photo of a kitten"),
       block_id: "image4")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type": "image",
           "title": {
@@ -412,8 +412,8 @@ final class ImageBlockTests: XCTestCase {
           "image_url": "http://placekitten.com/500/500",
           "alt_text": "An incredibly cute kitten."
         }
-        """)
-    expect{ jsonEncode(object: image) } == expectedJSON
+        """
+    expect{ jsonEncode(object: image) == convert(json: expectedJSON) } == true
   }
   static var allTests = [
     ("testSimple", testSimple),
@@ -441,7 +441,7 @@ final class ActionBlockTests: XCTestCase {
           value: "cancel")
       ],
       block_id: "actions1")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type": "actions",
           "block_id": "actions1",
@@ -495,8 +495,8 @@ final class ActionBlockTests: XCTestCase {
             }
           ]
         }
-        """)
-    expect{ jsonEncode(object: actions) } == expectedJSON
+        """
+    expect{ jsonEncode(object: actions) == convert(json: expectedJSON) } == true
   }
   
   func testDatePickerAndOverflow() {
@@ -524,7 +524,7 @@ final class ActionBlockTests: XCTestCase {
         )
       ],
       block_id: "actionblock789")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type": "actions",
           "block_id": "actionblock789",
@@ -590,8 +590,8 @@ final class ActionBlockTests: XCTestCase {
             }
           ]
         }
-        """)
-    expect{ jsonEncode(object: actions) } == expectedJSON
+        """
+    expect{ jsonEncode(object: actions) == convert(json: expectedJSON) } == true
   }
   
   static var allTests = [
@@ -610,7 +610,7 @@ final class ContextBlockTests: XCTestCase {
       ContextBlock.ContextElement(text: MarkdownText("Location: **Dogpatch**"))
       ]
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "context",
         "elements": [
@@ -625,8 +625,8 @@ final class ContextBlockTests: XCTestCase {
           },
         ]
       }
-      """)
-    expect{ jsonEncode(object: context) } == expectedJSON
+      """
+    expect{ jsonEncode(object: context) == convert(json: expectedJSON) } == true
   }
   
   func testComplete() {
@@ -638,7 +638,7 @@ final class ContextBlockTests: XCTestCase {
       alt_text: "Example Image")),
       ]
     )
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "context",
         "elements": [
@@ -659,8 +659,8 @@ final class ContextBlockTests: XCTestCase {
           }
         ]
       }
-      """)
-    expect{ jsonEncode(object: context) } == expectedJSON
+      """
+    expect{ jsonEncode(object: context) == convert(json: expectedJSON) } == true
   }
   
   static var allTests = [
@@ -673,14 +673,14 @@ final class FileBlockTests: XCTestCase {
   
   func testSimple() {
     let file = FileBlock(external_id: "ABCD1")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "type": "file",
         "external_id": "ABCD1",
         "source": "remote",
       }
-      """)
-    expect{ jsonEncode(object: file) } == expectedJSON
+      """
+    expect{ jsonEncode(object: file) == convert(json: expectedJSON) } == true
   }
   
   static var allTests = [

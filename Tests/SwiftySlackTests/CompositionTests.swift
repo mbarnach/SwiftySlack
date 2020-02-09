@@ -14,13 +14,13 @@ final class CompositionTests: XCTestCase {
   
   func testSimpleText() {
     let text = Text("A message *with some bold text* and _some italicized text_.")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type" : "mrkdwn",
           "text" : "A message *with some bold text* and _some italicized text_."
         }
-        """)
-    expect{ jsonEncode(object: text) } == expectedJSON
+        """
+    expect{ jsonEncode(object: text) == convert(json: expectedJSON) } == true
   }
   
   func testCompleteText() {
@@ -29,15 +29,15 @@ final class CompositionTests: XCTestCase {
       type: .mrkdwn,
       emoji: true,
       verbatim: false)
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
         {
           "type" : "mrkdwn",
           "text" : "A message *with some bold text* and _some italicized text_.",
           "emoji" : true,
           "verbatim" : false
         }
-        """)
-    expect{ jsonEncode(object: text) } == expectedJSON
+        """
+    expect{ jsonEncode(object: text) == convert(json: expectedJSON) } == true
   }
   
   func testConfirmation() {
@@ -46,7 +46,7 @@ final class CompositionTests: XCTestCase {
       text: Text(text: "Wouldn't you prefer a good game of _chess_?", type: .mrkdwn),
       confirm: PlainText("Do it"),
       deny: PlainText("Stop, I've changed my mind!"))
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "title": {
             "type": "plain_text",
@@ -65,15 +65,15 @@ final class CompositionTests: XCTestCase {
             "text": "Stop, I've changed my mind!"
         }
       }
-      """)
-    expect{ jsonEncode(object: confirmation) } == expectedJSON
+      """
+    expect{ jsonEncode(object: confirmation) == convert(json: expectedJSON) } == true
   }
   
   func testOption() {
     let option = Option(
       text: PlainText("Maru"),
       value: "maru")
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "text": {
             "type": "plain_text",
@@ -81,8 +81,8 @@ final class CompositionTests: XCTestCase {
         },
         "value": "maru"
       }
-      """)
-    expect{ jsonEncode(object: option) } == expectedJSON
+      """
+    expect{ jsonEncode(object: option) == convert(json: expectedJSON) } == true
   }
   
   func testOptionGroup() {
@@ -93,7 +93,7 @@ final class CompositionTests: XCTestCase {
         Option(text: PlainText("*this is plain_text text*"), value: "value-1"),
         Option(text: PlainText("*this is plain_text text*"), value: "value-2")
     ])
-    let expectedJSON = JSON(parseJSON: """
+    let expectedJSON = """
       {
         "label": {
           "type": "plain_text",
@@ -123,8 +123,8 @@ final class CompositionTests: XCTestCase {
           }
         ]
       }
-      """)
-    expect{ jsonEncode(object: optionGroup) } == expectedJSON
+      """
+    expect{ jsonEncode(object: optionGroup) == convert(json: expectedJSON) } == true
   }
   
   static var allTests = [
