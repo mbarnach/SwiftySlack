@@ -109,3 +109,57 @@ extension Future where Value == Data {
         }
     }
 }
+
+/// SwiftySlack extensions
+
+/// Chain promises with then keyword.
+public extension Future {
+    func then<T>(
+        using closure: @escaping (Value) throws -> Future<T>
+    ) -> Future<T> {
+        chained(using: closure)
+    }
+}
+
+/// Catch the error on a promise if any.
+public extension Future {
+    func `catch`(using callback: @escaping (Error) -> Void) {
+        observe { result in
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                callback(error)
+            }
+        }
+    }
+}
+
+/// All
+public extension Future {
+    static func all<T>(_ futures: [Future<T>]) -> Future<T> {
+        futures.reduce(Promise<T>(), { promise, future in
+            future.observe{ result in
+                switch result {
+                    case .success(let value):
+                        promise.resolve(with: value)
+                    case .failure(let error):
+                        promise.reject(with: error)
+                }
+            }
+            return promise
+        })
+    }
+}
+
+public extension Future {
+    func delay(_ delay: TimeInterval) -> Future<Value> {
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            group.leave()
+        }
+        group.wait()
+        return self
+    }
+}
