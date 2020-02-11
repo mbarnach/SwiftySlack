@@ -14,9 +14,12 @@ public enum SwiftySlackError: Error {
 }
 
 public enum MessageError: String, Error, CustomStringConvertible {
+  case invalid_json
+  case json_not_object
   case file_comment_not_found
   case invalid_name
   case too_many_emoji
+  case not_reactable
   case already_reacted
   case bad_timestamp
   case too_many_reactions
@@ -64,12 +67,18 @@ public enum MessageError: String, Error, CustomStringConvertible {
   
   public var description: String {
     switch self {
+    case .invalid_json:
+      return "The JSON you've included in your POST body cannot be parsed. This might be because it's actually not JSON, or perhaps you did not correctly set your HTTP Content-type header. Make sure your JSON attribute keys are strings wrapped with double-quote (\") characters."
+    case .json_not_object:
+      return "We could understand that your code was JSON-like enough to parse it, but it's not actually a JSON hash of attribute key/value pairs. Perhaps you sent us an array, or just a string or number."
     case .file_comment_not_found:
       return "File comment specified by file_comment does not exist."
     case .invalid_name:
       return "Value passed for name was invalid."
     case .too_many_emoji:
       return "The limit for distinct reactions (i.e emoji) on the item has been reached."
+    case .not_reactable:
+      return "Whatever you passed in, like a file or file_comment, can't be reacted to anymore. Your app can react to messages though."
     case .already_reacted:
       return "The specified item already has the user/reaction combination."
     case .bad_timestamp:
@@ -227,11 +236,11 @@ public struct WebAPI {
   
   public func add(reaction name: String, to message: Message) -> Future<Message> {
     return send(json: """
-      [
+      {
         "name": "\(name)",
         "channel": "\(message.channel)",
         "timestamp": "\(message.thread_ts ?? "")"
-      ]
+      }
       """.data(using: .utf8),
                 to: "https://slack.com/api/reactions.add")
       .transformed{ _ in
@@ -241,11 +250,11 @@ public struct WebAPI {
   
   public func remove(reaction name: String, to message: Message) -> Future<Message> {
     return send(json: """
-      [
+      {
         "name": "\(name)",
         "channel": "\(message.channel)",
         "timestamp": "\(message.thread_ts ?? "")"
-      ]
+      }
       """.data(using: .utf8),
                 to: "https://slack.com/api/reactions.remove")
       .transformed{ _ in
