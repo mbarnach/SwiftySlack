@@ -19,7 +19,7 @@ final class MessageTests: XCTestCase {
     self.token = ProcessInfo.processInfo.environment["TOKEN"] ?? ""
     self.channel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
     self.user = ProcessInfo.processInfo.environment["SLACKUSER"] ?? ""
-    self.user = ProcessInfo.processInfo.environment["SLACKUSER2"] ?? ""
+    self.user2 = ProcessInfo.processInfo.environment["SLACKUSER2"] ?? ""
   }
   
   func testMessageComplete() {
@@ -1862,7 +1862,7 @@ final class MessageTests: XCTestCase {
                 case .success:
                     break
                 case .failure(let error):
-                    XCTFail("Cannot delete the reaction from the message: \(error).")
+                    XCTFail("Cannot add the reaction from the message: \(error).")
             }
             done()
         }
