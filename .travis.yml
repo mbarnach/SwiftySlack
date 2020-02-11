@@ -2,14 +2,15 @@ env:
   global:
     - CODECOV_ELIGIBLE=true
 
-matrix:
+language: swift
+  os: linux, osx
+
+jobs:
   include:
     - os: osx
       osx_image: xcode11
-      sudo: required
     - os: linux
       dist: trusty
-      sudo: required
 
 before_install:
   - git clone https://github.com/IBM-Swift/Package-Builder.git
