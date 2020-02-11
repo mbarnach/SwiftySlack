@@ -8,7 +8,7 @@ matrix:
       osx_image: xcode11
       sudo: required
     - os: linux
-      dist: bionic
+      dist: trusty
       sudo: required
 
 before_install:
