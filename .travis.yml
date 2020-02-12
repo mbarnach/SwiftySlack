@@ -3,7 +3,7 @@ env:
     - CODECOV_ELIGIBLE=true
 
 language: swift
-  os: linux, osx
+  os: linux
 
 jobs:
   include:
