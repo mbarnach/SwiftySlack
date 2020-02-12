@@ -9,6 +9,7 @@ jobs:
   include:
     - os: osx
       osx_image: xcode11
+      env: JAZZY_ELIGIBLE=true
     - os: linux
       dist: trusty
 
