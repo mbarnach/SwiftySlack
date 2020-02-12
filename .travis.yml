@@ -2,9 +2,6 @@ env:
   global:
     - CODECOV_ELIGIBLE=true
 
-language: swift
-  os: linux
-
 jobs:
   include:
     - os: osx
