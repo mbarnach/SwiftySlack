@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-      .package(url: "https://github.com/mbarnach/SwiftyRequest.git", .branch("master")),
+      .package(url: "https://github.com/IBM-Swift/SwiftyRequest", from: "3.1.1"),
 
       // Testing dependencies
          .package(url: "https://github.com/Quick/Nimble", from: "8.0.2"),
