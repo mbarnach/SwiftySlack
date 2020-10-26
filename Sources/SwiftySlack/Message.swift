@@ -160,6 +160,68 @@ public class Message: Encodable {
   }
 }
 
+@_functionBuilder
+struct MessageBuilder {
+    static func buildBlock(_ block: Block) -> Block {
+        block
+    }
+
+    static func buildBlock(_ blocks: Block?...) -> [Block] {
+        blocks.compactMap({ $0 })
+    }
+
+    static func buildIf(_ value: Block?) -> Block? {
+        value
+    }
+
+    static func buildEither(first: Block) -> Block {
+        first
+    }
+
+    static func buildEither(second: Block) -> Block {
+        second
+    }
+}
+
+extension Message {
+    convenience init(to channel: String,
+                     alternateText text: String?,
+                     @MessageBuilder blocks: () -> [Block]) {
+        self.init(blocks: blocks(), to: channel, alternateText: text)
+    }
+
+    convenience init(to channel: String,
+                     alternateText text: String?,
+                     as as_user: Bool? = nil,
+                     emoji icon_emoji: String? = nil,
+                     url icon_url: URL? = nil,
+                     link link_names: Bool? = nil,
+                     useMarkdown mrkdwn: Bool? = nil,
+                     parse: Parse? = nil,
+                     reply_broadcast: Bool? = nil,
+                     reply thread_ts: String? = nil,
+                     unfurl_links: Bool? = nil,
+                     unfurl_media: Bool? = nil,
+                     username: String? = nil,
+                     @MessageBuilder blocks: () -> [Block]) {
+        self.init(blocks: blocks(),
+                  to: channel,
+                  alternateText: text,
+                  as: as_user,
+                  emoji: icon_emoji,
+                  url: icon_url,
+                  link: link_names,
+                  useMarkdown: mrkdwn,
+                  parse: parse,
+                  reply_broadcast: reply_broadcast,
+                  reply: thread_ts,
+                  unfurl_links: unfurl_links,
+                  unfurl_media: unfurl_media,
+                  username: username
+        )
+    }
+}
+
 internal class ReceivedMessage: Decodable {
   internal struct MetadataResponse: Decodable {
     internal var warnings: [String] = []

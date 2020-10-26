@@ -101,7 +101,100 @@ final class MessageTests: XCTestCase {
     expect{ answer.error }.to(beNil())
     
   }
-  
+
+  func testMessageBuilder() {
+    let message = Message(to: channel, alternateText: #function) {
+      SectionBlock(text: MarkdownText("You have a new request:\n*<google.com|Fred Enriquez - Time Off request>*"))
+      DividerBlock()
+      SectionBlock(text: MarkdownText("*Type:*\nPaid time off\n*When:*\nAug 10-Aug 13\n*Hours:* 16.0 (2 days)\n*Remaining balance:* 32.0 hours (4 days)\n*Comments:* \"Family in town, going camping!\""),
+                   accessory: ImageElement(image_url: URL(string: "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png")!,
+                                           alt_text: "computer thumbnail"))
+      ContextBlock(elements: [
+        ContextBlock.ContextElement(image: ImageElement(image_url: URL(string: "https://api.slack.com/img/blocks/bkb_template_images/notificationsWarningIcon.png")!,
+                                                        alt_text: "notifications warning icon")),
+        ContextBlock.ContextElement(text: MarkdownText("*Conflicts with Team Huddle: 4:15-4:30pm*"))
+      ]
+      )
+      ActionsBlock(elements: [
+        ButtonElement(text: PlainText(text: "Approve", emoji: true),
+                      value: "click_me_123",
+                      style: .primary),
+        ButtonElement(text: PlainText(text: "Deny", emoji: true),
+                      value: "click_me_123",
+                      style: .danger)
+        ]
+      )
+    }
+
+    let expectedJSON = JSON(parseJSON: """
+      [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "You have a new request:\\n*<google.com|Fred Enriquez - Time Off request>*"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Type:*\\nPaid time off\\n*When:*\\nAug 10-Aug 13\\n*Hours:* 16.0 (2 days)\\n*Remaining balance:* 32.0 hours (4 days)\\n*Comments:* \\"Family in town, going camping!\\""
+          },
+          "accessory": {
+            "type": "image",
+            "image_url": "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png",
+            "alt_text": "computer thumbnail"
+          }
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "image",
+              "image_url": "https://api.slack.com/img/blocks/bkb_template_images/notificationsWarningIcon.png",
+              "alt_text": "notifications warning icon"
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Conflicts with Team Huddle: 4:15-4:30pm*"
+            }
+          ]
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "emoji": true,
+                "text": "Approve"
+              },
+              "style": "primary",
+              "value": "click_me_123"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "emoji": true,
+                "text": "Deny"
+              },
+              "style": "danger",
+              "value": "click_me_123"
+            }
+          ]
+        }
+      ]
+      """)
+
+    expect{ jsonEncode(object: message.blocks) } == expectedJSON
+  }
+
   func testTemplateApprovalMessage() {
     let section1 = SectionBlock(text: MarkdownText("You have a new request:\n*<fakeLink.toEmployeeProfile.com|Fred Enriquez - New device request>*"))
     
