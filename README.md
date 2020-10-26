@@ -109,6 +109,36 @@ webAPI.send(ephemeral: Message(blocks: [],
 
 `SwiftySlack` has been tested on all the Slack blocks templates (see the tests).
 
+## Using the function builder
+
+Thanks to @kaphacius we can now use the function builder to send messages.
+It makes Slack messages similar to use SwiftUI :tada:
+
+```swift
+let message = Message(to: channel, alternateText: #function) {
+      SectionBlock(text: MarkdownText("You have a new request:\n*<google.com|Fred Enriquez - Time Off request>*"))
+      DividerBlock()
+      SectionBlock(text: MarkdownText("*Type:*\nPaid time off\n*When:*\nAug 10-Aug 13\n*Hours:* 16.0 (2 days)\n*Remaining balance:* 32.0 hours (4 days)\n*Comments:* \"Family in town, going camping!\""),
+                   accessory: ImageElement(image_url: URL(string: "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png")!,
+                                           alt_text: "computer thumbnail"))
+      ContextBlock(elements: [
+        ContextBlock.ContextElement(image: ImageElement(image_url: URL(string: "https://api.slack.com/img/blocks/bkb_template_images/notificationsWarningIcon.png")!,
+                                                        alt_text: "notifications warning icon")),
+        ContextBlock.ContextElement(text: MarkdownText("*Conflicts with Team Huddle: 4:15-4:30pm*"))
+      ]
+      )
+      ActionsBlock(elements: [
+        ButtonElement(text: PlainText(text: "Approve", emoji: true),
+                      value: "click_me_123",
+                      style: .primary),
+        ButtonElement(text: PlainText(text: "Deny", emoji: true),
+                      value: "click_me_123",
+                      style: .danger)
+        ]
+      )
+    }
+```
+
 ## Features:
 
 Currently `SwiftySlack` supports:
@@ -120,6 +150,7 @@ Currently `SwiftySlack` supports:
 * Update messages.
 * Schedule messages and delete them.
 * Reaction to messages.
+* Function builder for ease of writing messages.
 
 ## Notes:
 
