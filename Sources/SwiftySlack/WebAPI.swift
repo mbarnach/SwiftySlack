@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Mathieu Barnachon on 02/08/2019.
 //
@@ -64,7 +64,7 @@ public enum MessageError: String, Error, CustomStringConvertible {
   case team_added_to_org
   case request_timeout
   case fatal_error
-  
+
   public var description: String {
     switch self {
     case .invalid_json:
@@ -173,28 +173,28 @@ public enum MessageError: String, Error, CustomStringConvertible {
 
 public struct WebAPI {
   public var token: String
-  
+
   private let jsonEncoder = JSONEncoder()
-  
+
   public init(token: String) {
     self.token = token
     jsonEncoder.outputFormatting = .prettyPrinted
   }
-  
+
   public func send(message: Message) -> Future<Message> {
     return send(message: message, to: "https://slack.com/api/chat.postMessage")
   }
-  
+
   public func send(message: Message, at date: Date) -> Future<Message> {
     message.post_at = "\(date.timeIntervalSince1970)"
     return send(message: message, to: "https://slack.com/api/chat.scheduleMessage")
   }
-  
+
   public func send(ephemeral message: Message, to user: String) -> Future<Message> {
     message.user = user
     return send(message: message, to: "https://slack.com/api/chat.postEphemeral")
   }
-  
+
   public func delete(message: Message) -> Future<Message> {
     let promise = Promise<Message>()
     guard message.thread_ts != nil ||
@@ -219,7 +219,7 @@ public struct WebAPI {
       return send(message: message, to: "https://slack.com/api/chat.delete")
     }
   }
-  
+
   public func update(message: Message) -> Future<Message> {
     let promise = Promise<Message>()
     guard message.thread_ts != nil else {
@@ -233,7 +233,7 @@ public struct WebAPI {
     message.tsOrNot = true
     return send(message: message, to: "https://slack.com/api/chat.update")
   }
-  
+
   public func add(reaction name: String, to message: Message) -> Future<Message> {
     return send(json: """
       {
@@ -247,7 +247,7 @@ public struct WebAPI {
         return message
     }
   }
-  
+
   public func remove(reaction name: String, to message: Message) -> Future<Message> {
     return send(json: """
       {
@@ -261,7 +261,7 @@ public struct WebAPI {
         return message
     }
   }
-  
+
   private func send(json: Data?, to url: String) -> Future<ReceivedMessage> {
     let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
@@ -290,12 +290,12 @@ public struct WebAPI {
     }
     return promise
   }
-  
+
   private func send(message: Message, to url: String) -> Future<Message> {
     let request = RestRequest(method: .post, url: url)
     request.credentials = .bearerAuthentication(token: token)
     request.acceptType = "application/json"
-    
+
     let promise = Promise<Message>()
     do {
       request.messageBody = try self.jsonEncoder.encode(message)

@@ -1,6 +1,6 @@
 //
 //  MessageTests.swift
-//  
+//
 //
 //  Created by Mathieu Barnachon on 01/08/2019.
 //
@@ -14,18 +14,18 @@ final class MessageTests: XCTestCase {
   var channel = ""
   var user = ""
   var user2 = ""
-  
+
   override func setUp() {
     self.token = ProcessInfo.processInfo.environment["TOKEN"] ?? ""
     self.channel = ProcessInfo.processInfo.environment["CHANNEL"] ?? ""
     self.user = ProcessInfo.processInfo.environment["SLACKUSER"] ?? ""
     self.user2 = ProcessInfo.processInfo.environment["SLACKUSER2"] ?? ""
   }
-  
+
   func testMessageComplete() {
     let webAPI = WebAPI(token: self.token)
 
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
             blocks: [
                 SectionBlock(text: MarkdownText("A *custom* message"))
@@ -49,8 +49,8 @@ final class MessageTests: XCTestCase {
                 done()
             }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
             blocks: [
                 SectionBlock(text: MarkdownText("A *custom* message"))
@@ -76,11 +76,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testMessageReply() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message"))
@@ -121,12 +121,12 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
+
   }
-  
+
   func testTemplateApprovalMessage() {
     let section1 = SectionBlock(text: MarkdownText("You have a new request:\n*<fakeLink.toEmployeeProfile.com|Fred Enriquez - New device request>*"))
-    
+
     let expectedJSON1 = """
       {
         "type": "section",
@@ -137,7 +137,7 @@ final class MessageTests: XCTestCase {
       }
       """
     expect{ jsonEncode(object: section1) == convert(json: expectedJSON1) } == true
-    
+
     let section2 = SectionBlock(fields: [
       MarkdownText("*Type:*\nComputer (laptop)"),
       MarkdownText("*When:*\nSubmitted Aut 10"),
@@ -174,7 +174,7 @@ final class MessageTests: XCTestCase {
       }
       """
     expect{ jsonEncode(object: section2) == convert(json: expectedJSON2) } == true
-    
+
     let action1 = ActionsBlock(elements: [
       ButtonElement(text: PlainText(text: "Approve", emoji: true),
                     value: "click_me_123",
@@ -212,13 +212,13 @@ final class MessageTests: XCTestCase {
       }
       """
     expect{ jsonEncode(object: action1)  == convert(json: expectedJSON3) } == true
-    
+
     let message = Message(blocks: [section1, section2, action1],
                         to: self.channel,
                         alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
             switch result {
@@ -231,7 +231,7 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testTemplateApprovalAdvancedMessage() {
     let blocks = [
       SectionBlock(text: MarkdownText("You have a new request:\n*<google.com|Fred Enriquez - Time Off request>*")),
@@ -296,15 +296,15 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks) == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
                 switch result {
@@ -317,7 +317,7 @@ final class MessageTests: XCTestCase {
             }
         }
     }
-  
+
   func testTemplateNotificationMessage() {
     let blocks = [
       SectionBlock(text: PlainText(text: "Looks like you have a scheduling conflict with this event:",
@@ -454,15 +454,15 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks)  == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
                 switch result {
@@ -475,7 +475,7 @@ final class MessageTests: XCTestCase {
             }
     }
   }
-  
+
   func testTemplateOnboardingMessage() {
     let blocks = [
       SectionBlock(text: MarkdownText("Hey there 👋 I'm TaskBot. I'm here to help you create and manage tasks in Slack.\nThere are two ways to quickly create tasks:")),
@@ -558,15 +558,15 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks)  == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
             switch result {
@@ -579,7 +579,7 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testTemplateOnboardingBotMessage() {
     let blocks = [
       SectionBlock(text: MarkdownText("Hi David :wave:")),
@@ -639,16 +639,16 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks) == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
 
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
             switch result {
@@ -661,7 +661,7 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testTemplatePoolMessage() {
     let blocks = [
       SectionBlock(text: MarkdownText("*Where should we order lunch from?* Poll by <fakeLink.toUser.com|Mark>")),
@@ -843,16 +843,16 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks) == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
 
     let webAPI = WebAPI(token: self.token)
 
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
             switch result {
@@ -865,7 +865,7 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testTemplateSearchMessage() {
     let blocks = [
       SectionBlock(text: MarkdownText("We found *205 Hotels* in New Orleans, LA from *12/14 to 12/17*"),
@@ -1081,15 +1081,15 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks) == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
             switch result {
@@ -1102,7 +1102,7 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testTemplateSearchAdditionalMessage() {
     let blocks = [
       SectionBlock(text: MarkdownText(":mag: Search results for *Cata*")),
@@ -1441,16 +1441,16 @@ final class MessageTests: XCTestCase {
         }
       ]
       """
-    
+
     expect{ jsonEncode(object: blocks) == convert(json: expectedJSON) } == true
-    
+
     let message = Message(blocks: blocks,
                           to: self.channel,
                           alternateText: #function)
-    
+
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: message)
         .observe{ result in
             switch result {
@@ -1463,10 +1463,10 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testMessageEphemeral() {
     let webAPI = WebAPI(token: self.token)
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message"))
@@ -1499,11 +1499,11 @@ final class MessageTests: XCTestCase {
                 }
             }
   }
-  
+
   func testFailureMessages() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(blocks: [],
         to: "No Channel", alternateText: "Not a valid channel"))
         .observe{ result in
@@ -1516,8 +1516,8 @@ final class MessageTests: XCTestCase {
                 done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(ephemeral: Message(blocks: [],
                                     to: self.channel,
                                     alternateText: "Not in this channel"),
@@ -1532,8 +1532,8 @@ final class MessageTests: XCTestCase {
                 done()
             }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         WebAPI(token: "").send(message: Message(blocks: [],
                                     to: self.channel,
                                     alternateText: "Invalid (empty) token!"))
@@ -1548,11 +1548,11 @@ final class MessageTests: XCTestCase {
             }
         }
   }
-  
+
   func testDeleteMessage() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A message to *delete*"))
@@ -1573,11 +1573,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testDeletionNotExistingMessage() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.delete(message: Message(blocks: [],
                                     to: "Wrong channel!!!", alternateText: ""))
         .observe{ result in
@@ -1590,8 +1590,8 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.delete(message: Message(blocks: [],
                                     to: "",
                                     alternateText: ""))
@@ -1605,8 +1605,8 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.delete(message: Message(blocks: [],
                                     to: "Wrong channel!!!", alternateText: "",
                                     reply: "1234"))
@@ -1621,11 +1621,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testUpdateMessage() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message"))
@@ -1656,11 +1656,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testUpdateFailureMessage() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message"))
@@ -1683,8 +1683,8 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message"))
@@ -1707,8 +1707,8 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message"))
@@ -1732,11 +1732,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testScheduleMessage() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
             blocks: [
             SectionBlock(text: MarkdownText("A message from the past"))
@@ -1755,7 +1755,7 @@ final class MessageTests: XCTestCase {
                 }
         }
 
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A message from the past"))
@@ -1774,7 +1774,7 @@ final class MessageTests: XCTestCase {
         }
     }
 
-    waitUntil(timeout: 10) { done in
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A message from the past"))
@@ -1793,8 +1793,8 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("You shouldn't see that message."))
@@ -1816,8 +1816,8 @@ final class MessageTests: XCTestCase {
             done()
         }
     }
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("You will see that message."))
@@ -1843,11 +1843,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testAddReaction() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message with a reaction"))
@@ -1868,11 +1868,11 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   func testRemoveReaction() {
     let webAPI = WebAPI(token: self.token)
-    
-    waitUntil(timeout: 10) { done in
+
+    waitUntil(timeout: .seconds(10)) { done in
         webAPI.send(message: Message(
         blocks: [
             SectionBlock(text: MarkdownText("A *custom* message with no reaction"))
@@ -1896,7 +1896,7 @@ final class MessageTests: XCTestCase {
         }
     }
   }
-  
+
   static var allTests = [
     ("testMessageComplete", testMessageComplete),
     ("testMessageReply", testMessageReply),
