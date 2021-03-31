@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyRequest
+import LoggerAPI
 
 public enum SwiftySlackError: Error {
   case internalError(String)
@@ -270,6 +271,7 @@ public struct WebAPI {
 
     request.messageBody = json
     request.responseData{ response in
+      Log.verbose("Responding to \(request)") // Capture request to avoid closing before needed.
       switch response {
       case .success(let retval):
         do {
@@ -303,6 +305,7 @@ public struct WebAPI {
       promise.reject(with: error)
     }
     request.responseData{ response in
+      Log.verbose("Responding to \(request)") // Capture request to avoid closing before needed.
       switch response {
       case .success(let retval):
         do {
