@@ -171,33 +171,39 @@ final class WrappersTests: XCTestCase {
     expect{ self.rangeLimitWithoutInitial.count } == 8
     rangeLimitWithoutInitial = randomArrayOfString(lengthArray: 100, lengthString: 20)
     expect{ self.rangeLimitWithoutInitial.count } == 10
+    #if arch(x86_64)
     expect {
       catchBadInstruction {
         self.rangeLimitWithoutInitial = randomArrayOfString(lengthArray: 1, lengthString: 20)
       }
     }.toNot(beNil())
+    #endif
     // Initial empty
     expect{ self.rangeLimitWithInitialEmpty.count } == 0
     rangeLimitWithInitialEmpty = randomArrayOfString(lengthArray: 8, lengthString: 20)
     expect{ self.rangeLimitWithInitialEmpty.count } == 8
     rangeLimitWithInitialEmpty = randomArrayOfString(lengthArray: 100, lengthString: 20)
     expect{ self.rangeLimitWithInitialEmpty.count } == 10
+    #if arch(x86_64)
     expect {
       catchBadInstruction {
         self.rangeLimitWithInitialEmpty = randomArrayOfString(lengthArray: 1, lengthString: 20)
       }
     }.toNot(beNil())
+    #endif
     // Initial too long
     expect{ self.rangeLimitWithInitialTooLong.count } == 10
     rangeLimitWithInitialTooLong = randomArrayOfString(lengthArray: 8, lengthString: 20)
     expect{ self.rangeLimitWithInitialTooLong.count } == 8
     rangeLimitWithInitialTooLong = randomArrayOfString(lengthArray: 100, lengthString: 20)
     expect{ self.rangeLimitWithInitialTooLong.count } == 10
+    #if arch(x86_64)
     expect {
       catchBadInstruction {
         self.rangeLimitWithInitialTooLong = randomArrayOfString(lengthArray: 1, lengthString: 20)
       }
     }.toNot(beNil())
+    #endif
   }
   
   static var allTests = [
