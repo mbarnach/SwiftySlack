@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LoggerAPI
 
 public class Message: Encodable {
   public var blocks: [Block]
@@ -117,7 +118,8 @@ public class Message: Encodable {
       try container.encode(text, forKey: .text)
     }
     if let as_user = as_user {
-      try container.encode(as_user, forKey: .as_user)
+      Log.warning("As User is deprecated: we are not sending it.")
+      // try container.encode(as_user, forKey: .as_user)
     }
     if let icon_emoji = icon_emoji {
       try container.encode(icon_emoji, forKey: .icon_emoji)
